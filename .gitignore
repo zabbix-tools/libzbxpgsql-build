@@ -1,0 +1,6 @@
+*.deb
+*.rpm
+*.tar.gz
+.vagrant/
+libzbxpgsql/
+zabbix-*/
