@@ -18,6 +18,9 @@ DOCKER_RUN = docker run $(DOCKER_RUNARGS)
 all:
 	$(DOCKER_RUN) $(PACKAGE_NAME)/build all
 
+build:
+	$(DOCKER_RUN) $(PACKAGE_NAME)/build build
+
 dist:
 	$(DOCKER_RUN) $(PACKAGE_NAME)/build dist
 
@@ -27,8 +30,24 @@ deb:
 rpm:
 	$(DOCKER_RUN) $(PACKAGE_NAME)/build rpm
 
+agent:
+	$(DOCKER_RUN) -p 10050:10050 $(PACKAGE_NAME)/build agent
+
+run:
+	$(DOCKER_RUN) $(PACKAGE_NAME)/build /bin/bash
+
 clean:
 	rm -vf \
 		$(PACKAGE_NAME)-$(PACKAGE_VERSION)*.tar.gz \
 		$(PACKAGE_NAME)_$(PACKAGE_VERSION)*.deb \
 		$(PACKAGE_NAME)-$(PACKAGE_VERSION)*.rpm
+
+test-suite:
+	WORKDIR=/root/$(PACKAGE_NAME) \
+	PACKAGE_NAME=$(PACKAGE_NAME) \
+	PACKAGE_VERSION=$(PACKAGE_VERSION) \
+	ZABBIX_VERSION=$(ZABBIX_VERSION) \
+	docker-compose up
+
+test:
+	$(DOCKER_RUN) $(PACKAGE_NAME)/build test

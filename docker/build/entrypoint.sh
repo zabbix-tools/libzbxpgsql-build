@@ -12,10 +12,9 @@ function check_env() {
   [[ -z "${ZABBIX_VERSION}" ]] && die "ZABBIX_VERSION not set"
 
   # ensure zabbix sources exist
+  # version is assumed to be correct as it is in the file path
   [[ -d ${WORKDIR}/zabbix-${ZABBIX_VERSION} ]] || \
     die "Zabbix sources not found"
-
-  # TODO: check zabbix source version
 
   # set zabbix major version
   export ZABBIX_VERSION_MAJOR=${ZABBIX_VERSION:0:1}
@@ -25,7 +24,38 @@ function check_env() {
     ${WORKDIR}/zabbix-${ZABBIX_VERSION} \
     /usr/src/zabbix
 
-  # TODO: check module source version
+  # ensure module source exists
+  [[ -f ${WORKDIR}/${PACKAGE_NAME}/configure.ac ]] || \
+    die "${PACKAGE_NAME} sources not found"
+
+  # check module source version
+  PACKAGE_SOURCE_VERSION=$(grep AC_INIT ${WORKDIR}/${PACKAGE_NAME}/configure.ac | grep -Eo '([0-9]+\.){2}[0-9]+')
+  [[ "${PACKAGE_VERSION}" == "${PACKAGE_SOURCE_VERSION}" ]] ||
+    die "Requested build of ${PACKAGE_NAME}-${PACKAGE_VERSION} but sources are version ${PACKAGE_SOURCE_VERSION}"
+}
+
+function make_build(){
+  check_env
+
+  # copy sources into container
+  rm -rf /usr/src/${PACKAGE_NAME}
+  cp -rvf ${WORKDIR}/${PACKAGE_NAME} /usr/src/
+  cd /usr/src/${PACKAGE_NAME}
+
+  # compile
+  ./autogen.sh \
+    && ./configure \
+    && make \
+    || exit 1
+
+  # install locally
+  mkdir -p /usr/lib/zabbix/modules || :
+  cp -vf \
+    src/.libs/${PACKAGE_NAME}.so \
+    /usr/lib/zabbix/modules/${PACKAGE_NAME}.so \
+    || exit 1
+
+  echo "LoadModule=${PACKAGE_NAME}.so" > /etc/zabbix/zabbix_agentd.d/${PACKAGE_NAME}.conf
 }
 
 # make source distribution package
@@ -131,6 +161,10 @@ case $1 in
     make_deb
     make_rpm
     ;;
+
+  "build")
+    make_build
+    ;;
     
   "dist")
     make_dist
@@ -142,6 +176,20 @@ case $1 in
 
   "rpm")
     make_rpm
+    ;;
+
+  "agent")
+    make_build
+    /usr/sbin/zabbix_agentd -c /etc/zabbix/zabbix_agentd.conf -f
+    ;;
+
+  "test")
+    export PGDATABASE=postgres
+    PGCONN="host=pg84 user=postgres" \
+      zabbix_agent_bench \
+      -host agent \
+      -iterations 1 \
+      -keys ${WORKDIR}/fixtures/postgresql-8.4.keys
     ;;
 
   *)
