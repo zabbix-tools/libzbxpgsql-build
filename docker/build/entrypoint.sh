@@ -37,51 +37,25 @@ function check_env() {
 function make_build(){
   check_env
 
-  # copy sources into container
-  rm -rf /usr/src/${PACKAGE_NAME}
-  cp -rvf ${WORKDIR}/${PACKAGE_NAME} /usr/src/
-  cd /usr/src/${PACKAGE_NAME}
-
-  # compile
-  ./autogen.sh \
-    && ./configure \
-    && make \
-    || exit 1
-
-  # install locally
-  mkdir -p /usr/lib/zabbix/modules || :
-  cp -vf \
-    src/.libs/${PACKAGE_NAME}.so \
-    /usr/lib/zabbix/modules/${PACKAGE_NAME}.so \
-    || exit 1
-
-  echo "LoadModule=${PACKAGE_NAME}.so" > /etc/zabbix/zabbix_agentd.d/${PACKAGE_NAME}.conf
+  cd ${WORKDIR}/${PACKAGE_NAME}
+  [[ -f configure ]] || autogen.sh || exit 1
+  [[ -f Makefile ]] || ./configure || exit 1
+  make || exit 1
 }
 
 # make source distribution package
 function make_dist() {
-  # skip if already created
-  [[ -f /usr/src/${PACKAGE_NAME}/${PACKAGE_NAME}-${PACKAGE_VERSION}.tar.gz ]] && \
-    return 0
-
   check_env
 
-  # copy sources into container
-  rm -rf /usr/src/${PACKAGE_NAME}
-  cp -rvf ${WORKDIR}/${PACKAGE_NAME} /usr/src/
-  cd /usr/src/${PACKAGE_NAME}
+  cd ${WORKDIR}/${PACKAGE_NAME}
+  [[ -f configure ]] || autogen.sh || exit 1
+  [[ -f Makefile ]] || ./configure || exit 1
+  make dist || exit 1
 
-  # make tarball
-  ./autogen.sh && \
-    ./configure && \
-    make dist \
-    || exit 1
-
-  # copy package out of container
-  cp -vf \
+  # move to parent
+  mv -vf \
     ${PACKAGE_NAME}-${PACKAGE_VERSION}.tar.gz \
-    ${WORKDIR}/${PACKAGE_NAME}-${PACKAGE_VERSION}.tar.gz \
-    || exit 1
+    ${WORKDIR}/${PACKAGE_NAME}-${PACKAGE_VERSION}.tar.gz
 }
 
 # make debian package
@@ -141,7 +115,7 @@ function make_rpm() {
 
   # copy dist package
   cp -vf \
-    /usr/src/${PACKAGE_NAME}/${PACKAGE_NAME}-${PACKAGE_VERSION}.tar.gz \
+    ${WORKDIR}/${PACKAGE_NAME}-${PACKAGE_VERSION}.tar.gz \
     ${RPMBASE}/SOURCES/${PACKAGE_NAME}-${PACKAGE_VERSION}.tar.gz \
     || exit 1
   

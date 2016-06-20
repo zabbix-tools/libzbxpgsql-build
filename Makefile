@@ -15,11 +15,10 @@ DOCKER_RUNARGS = -it --rm \
 
 DOCKER_RUN = docker run $(DOCKER_RUNARGS)
 
-all:
-	$(DOCKER_RUN) $(PACKAGE_NAME)/build all
-
-build:
+libzbxpgsql.so:
 	$(DOCKER_RUN) $(PACKAGE_NAME)/build build
+
+all: libzbxpgsql.so dist deb rpm
 
 dist:
 	$(DOCKER_RUN) $(PACKAGE_NAME)/build dist
@@ -41,6 +40,7 @@ clean:
 		$(PACKAGE_NAME)-$(PACKAGE_VERSION)*.tar.gz \
 		$(PACKAGE_NAME)_$(PACKAGE_VERSION)*.deb \
 		$(PACKAGE_NAME)-$(PACKAGE_VERSION)*.rpm
+	cd $(PACKAGE_NAME) && make clean && make distclean
 
 test-suite:
 	WORKDIR=/root/$(PACKAGE_NAME) \
