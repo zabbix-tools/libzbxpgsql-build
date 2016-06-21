@@ -30,7 +30,7 @@ RUN \
   && dpkg -i zabbix-release_3.0-1+jessie_all.deb \
   && apt-get update \
   && apt-get -y install zabbix-agent zabbix-get \
-  && mkdir -p /usr/lib/modules \
+  && mkdir -p /usr/lib/zabbix/modules \
   && mkdir -p /var/run/zabbix && chown zabbix.zabbix /var/run/zabbix \
   && echo "AllowRoot=1" >> /etc/zabbix/zabbix_agentd.conf \
   && echo "LogType=console" >> /etc/zabbix/zabbix_agentd.conf \

@@ -15,24 +15,29 @@ DOCKER_RUNARGS = -it --rm \
 
 DOCKER_RUN = docker run $(DOCKER_RUNARGS)
 
+# build module
 libzbxpgsql.so:
 	$(DOCKER_RUN) $(PACKAGE_NAME)/build build
 
 all: libzbxpgsql.so dist deb rpm
 
+# create source tarball
 dist:
 	$(DOCKER_RUN) $(PACKAGE_NAME)/build dist
 
+# build debian package
 deb:
 	$(DOCKER_RUN) $(PACKAGE_NAME)/build deb
 
+# build rpm package
 rpm:
 	$(DOCKER_RUN) $(PACKAGE_NAME)/build rpm
 
 agent:
 	$(DOCKER_RUN) -p 10050:10050 $(PACKAGE_NAME)/build agent
 
-run:
+# start an interactice session in a build container
+shell:
 	$(DOCKER_RUN) $(PACKAGE_NAME)/build /bin/bash
 
 clean:
@@ -42,12 +47,14 @@ clean:
 		$(PACKAGE_NAME)-$(PACKAGE_VERSION)*.rpm
 	cd $(PACKAGE_NAME) && make clean && make distclean
 
-test-suite:
+# start a test environment including each postgresql version and a zabbix agent
+testenv:
+	docker-compose down || :
 	WORKDIR=/root/$(PACKAGE_NAME) \
-	PACKAGE_NAME=$(PACKAGE_NAME) \
-	PACKAGE_VERSION=$(PACKAGE_VERSION) \
-	ZABBIX_VERSION=$(ZABBIX_VERSION) \
-	docker-compose up
+		PACKAGE_NAME=$(PACKAGE_NAME) \
+		PACKAGE_VERSION=$(PACKAGE_VERSION) \
+		ZABBIX_VERSION=$(ZABBIX_VERSION) \
+		docker-compose up
 
 test:
-	$(DOCKER_RUN) $(PACKAGE_NAME)/build test
+	docker exec -it libzbxpgsql_agent_1 /entrypoint.sh test

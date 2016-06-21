@@ -129,6 +129,22 @@ function make_rpm() {
     || exit 1
 }
 
+function test_keys() {
+  check_env
+
+  PGHOST=$1
+  PGVERSION=$2
+
+  export PGDATABASE=postgres
+  PGCONN="host=${PGHOST} user=postgres" \
+    zabbix_agent_bench \
+      -host localhost \
+      -iterations 1 \
+      -threads 8 \
+      -strict \
+      -keys ${WORKDIR}/fixtures/postgresql-${PGVERSION}.keys
+}
+
 case $1 in
   "all")
     make_dist
@@ -153,17 +169,30 @@ case $1 in
     ;;
 
   "agent")
-    make_build
-    /usr/sbin/zabbix_agentd -c /etc/zabbix/zabbix_agentd.conf -f
+    PACKAGE_PATH=${WORKDIR}/${PACKAGE_NAME}/src/.libs/${PACKAGE_NAME}.so
+
+    # load module if present
+    if [[ -f $PACKAGE_PATH ]]; then
+      ln -vs \
+        $PACKAGE_PATH \
+        /usr/lib/zabbix/modules/${PACKAGE_NAME}.so
+
+      echo "LoadModule=${PACKAGE_NAME}.so" > \
+        /etc/zabbix/zabbix_agentd.d/${PACKAGE_NAME}.conf
+    fi
+
+    # start agent
+    exec /usr/sbin/zabbix_agentd -c /etc/zabbix/zabbix_agentd.conf -f
     ;;
 
   "test")
-    export PGDATABASE=postgres
-    PGCONN="host=pg84 user=postgres" \
-      zabbix_agent_bench \
-      -host agent \
-      -iterations 1 \
-      -keys ${WORKDIR}/fixtures/postgresql-8.4.keys
+    test_keys pg84 8.4 || die "Tests failed for PostgreSQL v8.4"
+    test_keys pg90 8.4 || die "Tests failed for PostgreSQL v9.0"
+    test_keys pg91 9.1 || die "Tests failed for PostgreSQL v9.1"
+    test_keys pg92 9.2 || die "Tests failed for PostgreSQL v9.2"
+    test_keys pg93 9.2 || die "Tests failed for PostgreSQL v9.3"
+    test_keys pg94 9.4 || die "Tests failed for PostgreSQL v9.4"
+    test_keys pg95 9.4 || die "Tests failed for PostgreSQL v9.5"
     ;;
 
   *)
