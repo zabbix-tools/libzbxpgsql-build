@@ -41,31 +41,7 @@ package:
 		-e "TARGET_ARCH=$(TARGET_ARCH)" \
 		$(PACKAGE_NAME)/build package
 
-clean:
-	rm -rvf release
-	cd $(PACKAGE_NAME) && make clean && make distclean
-
-# run an agent with the compiled module
-agent:
-	$(DOCKER_RUN) -p 10050:10050 $(PACKAGE_NAME)/build agent
-
-# start an interactice session in a build container
-shell:
-	$(DOCKER_RUN) $(PACKAGE_NAME)/build /bin/bash
-
-# start a test environment including each postgresql version and a zabbix agent
-testenv:
-	docker-compose down || :
-	WORKDIR=/root/$(PACKAGE_NAME) \
-		PACKAGE_NAME=$(PACKAGE_NAME) \
-		PACKAGE_VERSION=$(PACKAGE_VERSION) \
-		ZABBIX_VERSION=$(ZABBIX_VERSION) \
-		docker-compose up
-
-test:
-	docker exec -it libzbxpgsql_agent_1 /entrypoint.sh test
-
-ptest:
+package-tests:
 	$(DOCKER_RUN) $(PACKAGE_NAME)/centos-6-zabbix-2 test_package
 	$(DOCKER_RUN) $(PACKAGE_NAME)/centos-6-zabbix-3 test_package
 	$(DOCKER_RUN) $(PACKAGE_NAME)/centos-7-zabbix-2 test_package
@@ -77,3 +53,28 @@ ptest:
 	$(DOCKER_RUN) $(PACKAGE_NAME)/ubuntu-precise-zabbix-2 test_package
 	$(DOCKER_RUN) $(PACKAGE_NAME)/ubuntu-trusty-zabbix-2 test_package
 	$(DOCKER_RUN) $(PACKAGE_NAME)/ubuntu-trusty-zabbix-3 test_package
+
+clean:
+	rm -rvf release
+	cd $(PACKAGE_NAME) && make clean && make distclean
+
+# run key compatability tests (requires testenv)
+key-tests:
+	docker exec -it libzbxpgsql_agent_1 /entrypoint.sh test
+
+# start a test environment including each postgresql version and a zabbix agent
+testenv:
+	docker-compose down || :
+	WORKDIR=/root/$(PACKAGE_NAME) \
+		PACKAGE_NAME=$(PACKAGE_NAME) \
+		PACKAGE_VERSION=$(PACKAGE_VERSION) \
+		ZABBIX_VERSION=$(ZABBIX_VERSION) \
+		docker-compose up
+
+# run an agent with the compiled module
+agent:
+	$(DOCKER_RUN) -p 10050:10050 $(PACKAGE_NAME)/build agent
+
+# start an interactice session in a build container
+shell:
+	$(DOCKER_RUN) $(PACKAGE_NAME)/build /bin/bash
