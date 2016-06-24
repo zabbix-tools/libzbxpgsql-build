@@ -19,11 +19,14 @@ TARGET_OS = "rhel"
 TARGET_OS_MAJOR = "7"
 TARGET_ARCH = $(uname -m)
 
+all: libzbxpgsql.so
+
+docker-images:
+	cd docker && make docker-images
+
 # build module
 libzbxpgsql.so:
 	$(DOCKER_RUN) $(PACKAGE_NAME)/build build
-
-all: libzbxpgsql.so dist deb rpm
 
 # create source tarball
 dist:
