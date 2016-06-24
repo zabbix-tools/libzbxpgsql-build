@@ -1,5 +1,9 @@
 #!/bin/bash
 
+BULLET="==>"
+ARCH=$(uname -m)
+ZABBIX_VERSION_MAJOR=${ZABBIX_VERSION:0:1}
+
 function die() {
   echo "$@"
   exit 1
@@ -15,9 +19,6 @@ function check_env() {
   # version is assumed to be correct as it is in the file path
   [[ -d ${WORKDIR}/zabbix-${ZABBIX_VERSION} ]] || \
     die "Zabbix sources not found"
-
-  # set zabbix major version
-  export ZABBIX_VERSION_MAJOR=${ZABBIX_VERSION:0:1}
 
   # link zabbix sources to default location
   [[ -d /usr/src/zabbix ]] || ln -s \
@@ -53,80 +54,102 @@ function make_dist() {
   make dist || exit 1
 
   # move to parent
+  mkdir -p ${WORKDIR}/release
   mv -vf \
     ${PACKAGE_NAME}-${PACKAGE_VERSION}.tar.gz \
-    ${WORKDIR}/${PACKAGE_NAME}-${PACKAGE_VERSION}.tar.gz
+    ${WORKDIR}/release/${PACKAGE_NAME}-${PACKAGE_VERSION}.tar.gz
 }
 
-# make debian package
-function make_deb() {
+# make package for given target OS.
+# requires `make dist` to have been run
+function make_package() {
   check_env
 
-  # create dist package
-  make_dist
+  [[ -z "${TARGET_OS}" ]] && die "TARGET_OS not set"
+  [[ -z "${TARGET_OS_MAJOR}" ]] && die "TARGET_OS_MAJOR not set"
+  [[ -z "${TARGET_ARCH}" ]] && die "TARGET_ARCH not set"
+  [[ -z "${TARGET_MANAGER}" ]] && die "TARGET_MANAGER not set"
 
-  # copy dist to tmp build area
-  cd /tmp
-  cp -v \
-    ${WORKDIR}/${PACKAGE_NAME}-${PACKAGE_VERSION}.tar.gz \
-    /tmp/${PACKAGE_NAME}_${PACKAGE_VERSION}.orig.tar.gz \
-    || exit 1
+  # create release destination path
+  RELEASE_PATH=${WORKDIR}/release/${TARGET_MANAGER}/zabbix${ZABBIX_VERSION_MAJOR}/${TARGET_OS}/${TARGET_OS_MAJOR}/${TARGET_ARCH}
+  mkdir -vp ${RELEASE_PATH} || die "error creating release path"
 
-  # extract sources
-  tar -xC /tmp -f /tmp/${PACKAGE_NAME}_${PACKAGE_VERSION}.orig.tar.gz \
-    || exit 1
+  # build an rpm
+  case "${TARGET_MANAGER}" in
+    "yum")
+      RPMBASE=/root/rpmbuild
+      PACKAGE_RELEASE=$(grep '^Release.*' ${WORKDIR}/rpmbuild/${PACKAGE_NAME}.spec | grep -o '[0-9]\+$')
+      [[ "${TARGET_OS}" == "rhel" ]] && TARGET_DIST="el${TARGET_OS_MAJOR}."
 
-  mkdir /tmp/${PACKAGE_NAME}-${PACKAGE_VERSION}/debian/
+      # prepare working area
+      mkdir -vp ${RPMBASE}/{BUILD,RPMS,SOURCES,SPECS,SRPMS} || :
 
-  # copy package config
-  cp -vr \
-    ${WORKDIR}/debuild/* \
-    /tmp/${PACKAGE_NAME}-${PACKAGE_VERSION}/debian/ \
-    || exit 1
+      # copy spec file
+      cp -vf \
+        ${WORKDIR}/rpmbuild/${PACKAGE_NAME}.spec \
+        ${RPMBASE}/SPECS/${PACKAGE_NAME}.spec \
+        || exit 1
 
-  # build
-  cd ${PACKAGE_NAME}-${PACKAGE_VERSION}
-  debuild -us -uc || exit 1
+      # fix spec file for zabbix v2
+      [[ "${ZABBIX_VERSION_MAJOR}" == "2" ]] &&
+        sed -i \
+          -e 's/^Requires.*zabbix-agent.*/Requires    : zabbix-agent >= 2.0.0, zabbix-agent < 3.0.0/' \
+          ${RPMBASE}/SPECS/${PACKAGE_NAME}.spec
 
-  # copy package out of container
-  cp -vf \
-    ../${PACKAGE_NAME}_${PACKAGE_VERSION}-1_amd64.deb \
-    ${WORKDIR}/${PACKAGE_NAME}_${PACKAGE_VERSION}-1_amd64.deb \
-    || exit 1
-}
+      # copy dist package
+      cp -vf \
+        ${WORKDIR}/release/${PACKAGE_NAME}-${PACKAGE_VERSION}.tar.gz \
+        ${RPMBASE}/SOURCES/${PACKAGE_NAME}-${PACKAGE_VERSION}.tar.gz \
+        || exit 1
+      
+      # build rpm
+      rpmbuild -ba ${RPMBASE}/SPECS/${PACKAGE_NAME}.spec || exit 1
 
-function make_rpm() {
-  check_env
+      # copy out of container
+      cp -vf \
+        ${RPMBASE}/RPMS/${TARGET_ARCH}/${PACKAGE_NAME}-${PACKAGE_VERSION}-${PACKAGE_RELEASE}.${TARGET_ARCH}.rpm \
+        ${RELEASE_PATH}/${PACKAGE_NAME}-${PACKAGE_VERSION}-${PACKAGE_RELEASE}.${TARGET_DIST}${TARGET_ARCH}.rpm \
+        || exit 1
+      ;;
 
-  # create dist package
-  make_dist
+    "apt")
+      # TODO
+      PACKAGE_RELEASE=1
 
-  RPMBASE=/root/rpmbuild
-  ARCH=$(uname -m)
+      # copy dist to tmp build area
+      cd /tmp
+      cp -v \
+        ${WORKDIR}/release/${PACKAGE_NAME}-${PACKAGE_VERSION}.tar.gz \
+        /tmp/${PACKAGE_NAME}_${PACKAGE_VERSION}.orig.tar.gz \
+        || exit 1
 
-  # prepare working area
-  mkdir -vp ${RPMBASE}/{BUILD,RPMS,SOURCES,SPECS,SRPMS} || :
+      # extract sources
+      tar -xC /tmp -f /tmp/${PACKAGE_NAME}_${PACKAGE_VERSION}.orig.tar.gz \
+        || exit 1
 
-  # copy spec file
-  cp -vf \
-    ${WORKDIR}/rpmbuild/${PACKAGE_NAME}-zabbix-${ZABBIX_VERSION_MAJOR}.spec \
-    ${RPMBASE}/SPECS/${PACKAGE_NAME}.spec \
-    || exit 1
+      mkdir /tmp/${PACKAGE_NAME}-${PACKAGE_VERSION}/debian/
 
-  # copy dist package
-  cp -vf \
-    ${WORKDIR}/${PACKAGE_NAME}-${PACKAGE_VERSION}.tar.gz \
-    ${RPMBASE}/SOURCES/${PACKAGE_NAME}-${PACKAGE_VERSION}.tar.gz \
-    || exit 1
-  
-  # build rpm
-  rpmbuild -ba ${RPMBASE}/SPECS/${PACKAGE_NAME}.spec || exit 1
+      # copy package config
+      cp -vr \
+        ${WORKDIR}/debuild/* \
+        /tmp/${PACKAGE_NAME}-${PACKAGE_VERSION}/debian/ \
+        || exit 1
 
-  # copy out of container
-  cp -vf \
-    ${RPMBASE}/RPMS/${ARCH}/${PACKAGE_NAME}-${PACKAGE_VERSION}-1.${ARCH}.rpm \
-    ${WORKDIR}/${PACKAGE_NAME}-${PACKAGE_VERSION}-1.${ARCH}.rpm \
-    || exit 1
+      # build
+      cd ${PACKAGE_NAME}-${PACKAGE_VERSION}
+      debuild -us -uc || exit 1
+
+      # copy package out of container
+      cp -vf \
+        ../${PACKAGE_NAME}_${PACKAGE_VERSION}-1_${TARGET_ARCH}.deb \
+        ${RELEASE_PATH}/${PACKAGE_NAME}_${PACKAGE_VERSION}-${PACKAGE_RELEASE}+${TARGET_OS_MAJOR}_${TARGET_ARCH}.deb \
+        || exit 1
+      ;;
+
+    *)
+      die "Unsupported package manager: ${TARGET_MANAGER}"
+      ;;
+  esac
 }
 
 function test_keys() {
@@ -145,6 +168,25 @@ function test_keys() {
       -keys ${WORKDIR}/fixtures/postgresql-${PGVERSION}.keys
 }
 
+function test_package() {
+  check_env
+
+  # target installed agent version
+  ZABBIX_VERSION_MAJOR=$(zabbix_agentd --version | grep -o 'v[0-9]\+' | grep -o '[0-9]\+')
+
+  # test on centos
+  if [[ -f /etc/centos-release ]]; then
+    echo "${BULLET} Testing on $(head -n 1 /etc/centos-release)"
+
+    echo "${BULLET} Installing ${PACKAGE_NAME}-${PACKAGE_VERSION}-1.${ARCH}"
+
+    rpm -i /root/${PACKAGE_NAME}/${PACKAGE_NAME}-${PACKAGE_VERSION}-zabbix${ZABBIX_VERSION_MAJOR}-1.${ARCH}.rpm || exit 1
+  fi
+
+  echo "${BULLET} Testing module configuration"
+  zabbix_agentd -t pg.modver | grep --color "libzbxpgsql ${PACKAGE_VERSION}" || exit 1
+}
+
 case $1 in
   "all")
     make_dist
@@ -158,14 +200,6 @@ case $1 in
     
   "dist")
     make_dist
-    ;;
-
-  "deb")
-    make_deb
-    ;;
-
-  "rpm")
-    make_rpm
     ;;
 
   "agent")
@@ -193,6 +227,14 @@ case $1 in
     test_keys pg93 9.2 || die "Tests failed for PostgreSQL v9.3"
     test_keys pg94 9.4 || die "Tests failed for PostgreSQL v9.4"
     test_keys pg95 9.4 || die "Tests failed for PostgreSQL v9.5"
+    ;;
+
+  "package")
+    make_package
+    ;;
+
+  "test_package")
+    test_package
     ;;
 
   *)

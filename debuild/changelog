@@ -1,4 +1,4 @@
-libzbxpgsql (0.2.1-1) UNRELEASED; urgency=low
+libzbxpgsql (1.0.0-1) UNRELEASED; urgency=low
 
   * Fixed connection leak in pg_version()
 

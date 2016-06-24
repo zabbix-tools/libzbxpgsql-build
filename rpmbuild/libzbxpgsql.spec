@@ -1,7 +1,7 @@
 Name        : libzbxpgsql
 Vendor      : cavaliercoder
-Version     : 0.2.1
-Release     : 1%{?dist}
+Version     : 1.0.0
+Release     : 1
 Summary     : PostgreSQL monitoring module for Zabbix
 
 Group       : Applications/Internet
@@ -13,21 +13,9 @@ Source0     : %{name}-%{version}.tar.gz
 
 Buildroot   : %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-%if "%{_vendor}" == "redhat" || "%{_vendor}" == "suse"
-BuildRequires : libtool
-BuildRequires : postgresql-devel
-%endif
-# BuildRequires don't seem to work with rpmbuild on Ubuntu...
-
 # package dependencies
 Requires    : zabbix-agent >= 3.0.0
-
-%if "%{_vendor}" == "redhat"
 Requires    : postgresql-libs >= 8.1.23
-%endif
-%if "%{_vendor}" == "suse"
-Requires    : libpq5
-%endif
 
 %description
 libzbxpgsql is a comprehensive PostgreSQL discovery and monitoring module for the Zabbix monitoring agent written in C.
@@ -38,11 +26,6 @@ libzbxpgsql is a comprehensive PostgreSQL discovery and monitoring module for th
 
 # fix up some lib64 issues
 sed -i.orig -e 's|_LIBDIR=/usr/lib|_LIBDIR=%{_libdir}|g' configure
-
-# make it build on openSUSE too (pgsql/libpq-fe.h)
-%if 0%{?suse_version}
-sed -i.orig -e 's|libpq-fe.h|pgsql/libpq-fe.h|g' src/libzbxpgsql.h
-%endif
 
 %build
 # Configure and compile sources into $RPM_BUILD_ROOT
