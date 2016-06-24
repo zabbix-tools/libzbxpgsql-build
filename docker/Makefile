@@ -1,7 +1,9 @@
 docker-images: \
 	build \
 	centos-6-zabbix-2 \
+	centos-6-zabbix-3 \
 	centos-7-zabbix-2 \
+	centos-7-zabbix-3 \
 	debian-wheezy-zabbix-2 \
 	debian-wheezy-zabbix-3 \
 	debian-jessie-zabbix-2 \
@@ -30,10 +32,22 @@ centos-6-zabbix-2:
 		-t libzbxpgsql/centos-6-zabbix-2 \
 		.
 
+centos-6-zabbix-3:
+	docker build \
+		-f centos-6-zabbix-3.Dockerfile \
+		-t libzbxpgsql/centos-6-zabbix-3 \
+		.
+
 centos-7-zabbix-2:
 	docker build \
 		-f centos-7-zabbix-2.Dockerfile \
 		-t libzbxpgsql/centos-7-zabbix-2 \
+		.
+
+centos-7-zabbix-3:
+	docker build \
+		-f centos-7-zabbix-3.Dockerfile \
+		-t libzbxpgsql/centos-7-zabbix-3 \
 		.
 
 debian-wheezy-zabbix-2:

@@ -10,7 +10,7 @@ RUN \
   && apt-get -q update \
   && apt-get -y install zabbix-agent zabbix-get \
   && rm -rf /var/lib/apt/lists/*
-  
+
 COPY entrypoint.sh /entrypoint.sh
 
-CMD [ "/entrypoint.sh" ]
+ENTRYPOINT ["/entrypoint.sh"]

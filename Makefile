@@ -67,4 +67,13 @@ test:
 
 ptest:
 	$(DOCKER_RUN) $(PACKAGE_NAME)/centos-6-zabbix-2 test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/centos-6-zabbix-3 test_package
 	$(DOCKER_RUN) $(PACKAGE_NAME)/centos-7-zabbix-2 test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/centos-7-zabbix-3 test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/debian-wheezy-zabbix-2 test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/debian-wheezy-zabbix-3 test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/debian-jessie-zabbix-2 test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/debian-jessie-zabbix-3 test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/ubuntu-precise-zabbix-2 test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/ubuntu-trusty-zabbix-2 test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/ubuntu-trusty-zabbix-3 test_package

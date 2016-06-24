@@ -90,12 +90,6 @@ function make_package() {
         ${RPMBASE}/SPECS/${PACKAGE_NAME}.spec \
         || exit 1
 
-      # fix spec file for zabbix v2
-      [[ "${ZABBIX_VERSION_MAJOR}" == "2" ]] &&
-        sed -i \
-          -e 's/^Requires.*zabbix-agent.*/Requires    : zabbix-agent >= 2.0.0, zabbix-agent < 3.0.0/' \
-          ${RPMBASE}/SPECS/${PACKAGE_NAME}.spec
-
       # copy dist package
       cp -vf \
         ${WORKDIR}/release/${PACKAGE_NAME}-${PACKAGE_VERSION}.tar.gz \
@@ -103,7 +97,11 @@ function make_package() {
         || exit 1
       
       # build rpm
-      rpmbuild -ba ${RPMBASE}/SPECS/${PACKAGE_NAME}.spec || exit 1
+      rpmbuild \
+        -ba \
+        --define "_zabbix_version ${ZABBIX_VERSION_MAJOR}" \
+        ${RPMBASE}/SPECS/${PACKAGE_NAME}.spec \
+        || exit 1
 
       # copy out of container
       cp -vf \
@@ -135,6 +133,17 @@ function make_package() {
         /tmp/${PACKAGE_NAME}-${PACKAGE_VERSION}/debian/ \
         || exit 1
 
+      # fixes for zabbix v2
+      if [[ "${ZABBIX_VERSION_MAJOR}" == "2" ]]; then
+        sed -i \
+          -e 's/\/zabbix\/modules/\/modules/g' \
+          /tmp/${PACKAGE_NAME}-${PACKAGE_VERSION}/debian/rules
+
+        sed  -i \
+          -e 's/, zabbix-agent \(.*\)/, zabbix-agent (>= 2.2)/' \
+          /tmp/${PACKAGE_NAME}-${PACKAGE_VERSION}/debian/control
+      fi
+
       # build
       cd ${PACKAGE_NAME}-${PACKAGE_VERSION}
       debuild -us -uc || exit 1
@@ -152,6 +161,77 @@ function make_package() {
   esac
 }
 
+function test_package() {
+  check_env
+
+  echo "${BULLET} Zabbix agent info:"
+  zabbix_agentd --version
+
+  # target installed agent version
+  ZABBIX_VERSION_MAJOR=$(zabbix_agentd --version | grep -o '[0-9]\+' | grep -o '[0-9]\+' | head -n 1)
+  [[ -z "${ZABBIX_VERSION_MAJOR}" ]] && die "Error printing Zabbix agent version"
+
+  # install on redhat family
+  if [[ -f /etc/redhat-release ]]; then
+    OS=$(head -n 1 /etc/redhat-release)
+    OSVER=$(grep -o '[0-9]\+' /etc/redhat-release | head -n 1)
+    ARCH=$(uname -m)
+    PACKAGE_PATH=release/yum/zabbix${ZABBIX_VERSION_MAJOR}/rhel/${OSVER}/${ARCH}/${PACKAGE_NAME}-${PACKAGE_VERSION}-1.el${OSVER}.${ARCH}.rpm
+
+    echo "${BULLET} Package info:"
+    rpm -qpi ${WORKDIR}/${PACKAGE_PATH}
+    rpm -qpl ${WORKDIR}/${PACKAGE_PATH}
+    rpm -qpR ${WORKDIR}/${PACKAGE_PATH}
+
+    echo "${BULLET} Installing ${PACKAGE_PATH} on ${OS}"
+    rpm -iv ${WORKDIR}/${PACKAGE_PATH} || die "Error installing package"
+
+  # install on debian family
+  elif [[ -f /etc/os-release ]]; then
+    source /etc/os-release
+    OS="${ID}"
+    case "${ID}" in
+      "debian")
+        case "${VERSION_ID}" in
+          "7") OSVER="wheezy" ;;
+          "8") OSVER="jessie" ;;
+        esac
+      ;;
+
+      "ubuntu")
+        case "${VERSION_ID}" in
+          "12.04") OSVER="precise" ;;
+          "14.04") OSVER="trusty" ;;
+        esac
+      ;;
+
+      *)
+        die "Unsupported operating system: ${PRETTY_NAME}"
+        ;;
+    esac
+
+    case "$(uname -m)" in
+      "x86_64") ARCH="amd64" ;;
+      *) die "Unsupported architecture: $(uname -m)" ;;
+    esac
+
+    PACKAGE_PATH=release/apt/zabbix${ZABBIX_VERSION_MAJOR}/${OS}/${OSVER}/${ARCH}/${PACKAGE_NAME}_${PACKAGE_VERSION}-1+${OSVER}_${ARCH}.deb
+
+
+    echo "${BULLET} Package info:"
+    dpkg-deb -I ${WORKDIR}/${PACKAGE_PATH}
+    dpkg-deb -c ${WORKDIR}/${PACKAGE_PATH}
+
+    echo "${BULLET} Installing ${PACKAGE_PATH} on ${PRETTY_NAME}"
+    dpkg -i ${WORKDIR}/${PACKAGE_PATH} || die "Error installing package"
+  fi
+
+  echo "${BULLET} Testing module configuration"
+  zabbix_agentd -t pg.modver \
+    | grep --color "libzbxpgsql ${PACKAGE_VERSION}" \
+    || die "Error getting loaded ${PACKAGE_NAME} version"
+}
+
 function test_keys() {
   check_env
 
@@ -166,25 +246,6 @@ function test_keys() {
       -threads 8 \
       -strict \
       -keys ${WORKDIR}/fixtures/postgresql-${PGVERSION}.keys
-}
-
-function test_package() {
-  check_env
-
-  # target installed agent version
-  ZABBIX_VERSION_MAJOR=$(zabbix_agentd --version | grep -o 'v[0-9]\+' | grep -o '[0-9]\+')
-
-  # test on centos
-  if [[ -f /etc/centos-release ]]; then
-    echo "${BULLET} Testing on $(head -n 1 /etc/centos-release)"
-
-    echo "${BULLET} Installing ${PACKAGE_NAME}-${PACKAGE_VERSION}-1.${ARCH}"
-
-    rpm -i /root/${PACKAGE_NAME}/${PACKAGE_NAME}-${PACKAGE_VERSION}-zabbix${ZABBIX_VERSION_MAJOR}-1.${ARCH}.rpm || exit 1
-  fi
-
-  echo "${BULLET} Testing module configuration"
-  zabbix_agentd -t pg.modver | grep --color "libzbxpgsql ${PACKAGE_VERSION}" || exit 1
 }
 
 case $1 in

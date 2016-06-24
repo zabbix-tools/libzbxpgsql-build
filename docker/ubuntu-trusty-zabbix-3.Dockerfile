@@ -9,7 +9,7 @@ RUN \
   && dpkg -i zabbix-release_3.0-1+trusty_all.deb \
   && apt-get -q update \
   && apt-get -y install zabbix-agent zabbix-get
-  
+
 COPY entrypoint.sh /entrypoint.sh
 
-CMD [ "/entrypoint.sh" ]
+ENTRYPOINT ["/entrypoint.sh"]
