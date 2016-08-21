@@ -64,7 +64,7 @@ everything you need to compile, package and test `libzbxpgsql`.
 * `make testenv`:
   
   Use `docker-compose` to run all supported versions of PostgreSQL and a Zabbix
-  agent loaded with `libzbxpgsql`
+  agent loaded with `libzbxpgsql` (if `make libzbxpgsql.so` has been run)
 
 * `make agent`:
   

@@ -1,5 +1,5 @@
 PACKAGE_NAME = libzbxpgsql
-PACKAGE_VERSION = 1.0.0
+PACKAGE_VERSION = 1.1.0
 
 ZABBIX_VERSION = 3.0.2
 
@@ -70,6 +70,9 @@ testenv:
 		PACKAGE_VERSION=$(PACKAGE_VERSION) \
 		ZABBIX_VERSION=$(ZABBIX_VERSION) \
 		docker-compose up
+
+release-sync:
+	aws s3 sync ./release/ s3://s3.cavaliercoder.com/libzbxpgsql/
 
 # run an agent with the compiled module
 agent:

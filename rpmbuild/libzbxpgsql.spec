@@ -1,6 +1,6 @@
 Name        : libzbxpgsql
 Vendor      : cavaliercoder
-Version     : 1.0.0
+Version     : 1.1.0
 Release     : 1
 Summary     : PostgreSQL monitoring module for Zabbix
 
@@ -63,6 +63,42 @@ rm -rf $RPM_BUILD_ROOT
 %{_sysconfdir}/zabbix/zabbix_agentd.d/%{name}.conf
 
 %changelog
+* Sat Aug 20 2016 Ryan Armstrong <ryan@cavaliercoder.com> 1.1.0-1
+- Added configuration file for long custom queries - Rob Brucks
+
+* Sun Jun 26 2016 Ryan Armstrong <ryan@cavaliercoder.com> 1.0.0-1
+- Added support for Zabbix v3
+- Added multi-database support for discovering schema, tables and indexes
+- Added error messages to failed requests
+- Monitoring connections are no longer counted when monitoring backend
+  connection counts
+- Added `pg.db.xid_age` to monitor the allocation of Transaction IDs
+- Added `pg.table.*_perc` keys to measure cache hit ratios for tables
+- Added `pg.checkpoint_avg_interval` to return average interval between
+  checkpoint operations in seconds
+- Added `pg.checkpoint_time_perc` to measure the percentage of time spent
+  in checkpoint operations since last reset
+- Added `pg.stats_reset_interval` to return seconds since background writer
+  stats were reset
+- Added `pg.table.n_mod_since_analyze` to return the estimated number of rows
+  that have been modified since the last table analyze
+- Added support for `pg.queries.longest` in PostgreSQL versions prior to 9.2
+- Added `pg.prepared_xacts_count` to return the number of transactions currently
+  prepared for two phase commit
+- Added `pg.prepared_xacts_ratio` to return the number of transactions currently
+  prepared for two phase commit as a ratio of the maximum permitted prepared
+  transaction count
+- Added `pg.prepared_xacts_age` to return the age of the oldest transaction
+  currently prepared for two phase commit
+- Added `pg.backends.free` to return the number of available backend connections
+- Added `pg.backends.ratio` to return the ratio of used available backend
+  connections
+- Added `--with-postgresql` switch to source configuration script
+- Added `--with-zabbix` switch to source configuration script
+- Fixed misreporting in `pg.queries.longest` when no queries were in progress
+- Fixed build dependencies on Debian (thanks darkweaver87)
+- Moved build scripts to a new repository (cavaliercoder/libzbxpgsql-build)
+
 * Mon Sep 14 2015 Ryan Armstrong <ryan@cavaliercoder.com> 0.2.1-1
 - Fixed connection leak in pg_version()
 - Fixed query error in pg.index.rows key

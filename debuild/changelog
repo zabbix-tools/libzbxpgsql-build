@@ -1,9 +1,5 @@
-libzbxpgsql (1.0.0-1) UNRELEASED; urgency=low
+libzbxpgsql (1.1.0-1) UNRELEASED; urgency=low
 
-  * Fixed connection leak in pg_version()
+  * Added configuration file for long custom queries - Rob Brucks
 
-  * Fixed query error in pg.index.rows key
-  
-  * Removed noisy logging in pg.query.* keys
-
- -- Ryan Armstrong <ryan@cavaliercoder.com>  Mon, 14 Sep 2015 15:05:00 +0000
+ -- Ryan Armstrong <ryan@cavaliercoder.com> Sat, 20 Aug 2016 00:00:00 +0000

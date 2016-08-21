@@ -61,6 +61,7 @@ yum install -y --nogpgcheck \
     automake \
     gcc \
     git \
+    libconfig-devel \
     libtool \
     make \
     phpPgAdmin \

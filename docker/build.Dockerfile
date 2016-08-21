@@ -16,6 +16,8 @@ RUN apt-get update && apt-get -y install \
   m4 \
   libtool \
   libpq-dev \
+  libconfig-dev \
+  vim \
   && rm -rf /var/lib/apt/lists/*
 
 # install zabbix_agent_bench
@@ -34,6 +36,8 @@ RUN \
   && mkdir -p /var/run/zabbix && chown zabbix.zabbix /var/run/zabbix \
   && echo "AllowRoot=1" >> /etc/zabbix/zabbix_agentd.conf \
   && echo "LogType=console" >> /etc/zabbix/zabbix_agentd.conf \
+  && echo "LoadModulePath=/root/libzbxpgsql/libzbxpgsql/src/.libs" >> /etc/zabbix/zabbix_agentd.conf \
+  && echo "LoadModule=libzbxpgsql.so" >> /etc/zabbix/zabbix_agentd.conf \
   && rm -rf zabbix-release_3.0-1+jessie_all.deb /var/lib/apt/lists/*
 
 EXPOSE 10050
