@@ -53,6 +53,8 @@ mv $RPM_BUILD_ROOT%{_libdir}/%{name}.so $RPM_BUILD_ROOT%{moddir}/modules/%{name}
 # Create agent config file
 install -dm 755 $RPM_BUILD_ROOT%{_sysconfdir}/zabbix/zabbix_agentd.d
 echo "LoadModule=libzbxpgsql.so" > $RPM_BUILD_ROOT%{_sysconfdir}/zabbix/zabbix_agentd.d/%{name}.conf
+install -dm 755 $RPM_BUILD_ROOT%{_sysconfdir}/%{name}.d
+install -m 644 query.conf $RPM_BUILD_ROOT%{_sysconfdir}/%{name}.d/
 
 %clean
 # Clean out the build root
@@ -61,6 +63,7 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %{moddir}/modules/libzbxpgsql.so
 %{_sysconfdir}/zabbix/zabbix_agentd.d/%{name}.conf
+%{_sysconfdir}/%{name}.d/query.conf
 
 %changelog
 * Sat Aug 20 2016 Ryan Armstrong <ryan@cavaliercoder.com> 1.1.0-1

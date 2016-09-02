@@ -32,8 +32,8 @@ make_package 2.4.8 apt ubuntu trusty amd64
 make_package 2.4.8 yum rhel 6 x86_64
 make_package 2.4.8 yum rhel 7 x86_64
 
-make_package 3.0.2 apt debian wheezy amd64
-make_package 3.0.2 apt debian jessie amd64
-make_package 3.0.2 apt ubuntu trusty amd64
-make_package 3.0.2 yum rhel 6 x86_64
-make_package 3.0.2 yum rhel 7 x86_64
+make_package 3.0.4 apt debian wheezy amd64
+make_package 3.0.4 apt debian jessie amd64
+make_package 3.0.4 apt ubuntu trusty amd64
+make_package 3.0.4 yum rhel 6 x86_64
+make_package 3.0.4 yum rhel 7 x86_64
