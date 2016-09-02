@@ -37,44 +37,30 @@ dist:
 
 # create a release package
 package:
-	ifeq ($(TARGET_OS),wheezy)
+	if test '$(TARGET_OS)' != 'rhel'; then \
 		$(DOCKER_RUN) \
 			-e "TARGET_MANAGER=$(TARGET_MANAGER)" \
 			-e "TARGET_OS=$(TARGET_OS)" \
 			-e "TARGET_OS_MAJOR=$(TARGET_OS_MAJOR)" \
 			-e "TARGET_ARCH=$(TARGET_ARCH)" \
-			$(PACKAGE_NAME)/build-wheezy package
-	else ifeq ($(TARGET_OS),precise)
-		$(DOCKER_RUN) \
-			-e "TARGET_MANAGER=$(TARGET_MANAGER)" \
-			-e "TARGET_OS=$(TARGET_OS)" \
-			-e "TARGET_OS_MAJOR=$(TARGET_OS_MAJOR)" \
-			-e "TARGET_ARCH=$(TARGET_ARCH)" \
-			$(PACKAGE_NAME)/build-wheezy package
-	else ifeq ($(TARGET_OS),rhel)
-		ifeq ($(TARGET_OS_MAJOR),6)
+			$(PACKAGE_NAME)/build-wheezy package; \
+	else \
+		if test '$(TARGET_OS_MAJOR)' = '6'; then \
 			$(DOCKER_RUN) \
 				-e "TARGET_MANAGER=$(TARGET_MANAGER)" \
 				-e "TARGET_OS=$(TARGET_OS)" \
 				-e "TARGET_OS_MAJOR=$(TARGET_OS_MAJOR)" \
 				-e "TARGET_ARCH=$(TARGET_ARCH)" \
-				$(PACKAGE_NAME)/build-centos-6 package
-		else
+				$(PACKAGE_NAME)/build-centos-6 package; \
+		else \
 			$(DOCKER_RUN) \
 				-e "TARGET_MANAGER=$(TARGET_MANAGER)" \
 				-e "TARGET_OS=$(TARGET_OS)" \
 				-e "TARGET_OS_MAJOR=$(TARGET_OS_MAJOR)" \
 				-e "TARGET_ARCH=$(TARGET_ARCH)" \
-				$(PACKAGE_NAME)/build-centos-7 package
-		endif
-	else
-		$(DOCKER_RUN) \
-			-e "TARGET_MANAGER=$(TARGET_MANAGER)" \
-			-e "TARGET_OS=$(TARGET_OS)" \
-			-e "TARGET_OS_MAJOR=$(TARGET_OS_MAJOR)" \
-			-e "TARGET_ARCH=$(TARGET_ARCH)" \
-			$(PACKAGE_NAME)/build-jessie package
-	endif
+				$(PACKAGE_NAME)/build-centos-7 package; \
+		fi \
+	fi
 
 package-tests:
 	$(DOCKER_RUN) $(PACKAGE_NAME)/centos-6-zabbix-2 test_package
