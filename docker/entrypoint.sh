@@ -39,7 +39,7 @@ function make_build(){
   check_env
 
   cd ${WORKDIR}/${PACKAGE_NAME}
-  [[ -f configure ]] || autogen.sh || exit 1
+  [[ -f configure ]] || ./autogen.sh || exit 1
   [[ -f Makefile ]] || ./configure || exit 1
   make || exit 1
 }

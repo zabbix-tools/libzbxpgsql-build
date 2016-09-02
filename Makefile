@@ -24,22 +24,57 @@ all: libzbxpgsql.so
 docker-images:
 	cd docker && make docker-images
 
+docker-clean-all:
+	cd docker && make docker-clean-all
+
 # build module
 libzbxpgsql.so:
-	$(DOCKER_RUN) $(PACKAGE_NAME)/build build
+	$(DOCKER_RUN) $(PACKAGE_NAME)/build-jessie build
 
 # create source tarball
 dist:
-	$(DOCKER_RUN) $(PACKAGE_NAME)/build dist
+	$(DOCKER_RUN) $(PACKAGE_NAME)/build-jessie dist
 
 # create a release package
 package:
-	$(DOCKER_RUN) \
-		-e "TARGET_MANAGER=$(TARGET_MANAGER)" \
-		-e "TARGET_OS=$(TARGET_OS)" \
-		-e "TARGET_OS_MAJOR=$(TARGET_OS_MAJOR)" \
-		-e "TARGET_ARCH=$(TARGET_ARCH)" \
-		$(PACKAGE_NAME)/build package
+	ifeq ($(TARGET_OS),wheezy)
+		$(DOCKER_RUN) \
+			-e "TARGET_MANAGER=$(TARGET_MANAGER)" \
+			-e "TARGET_OS=$(TARGET_OS)" \
+			-e "TARGET_OS_MAJOR=$(TARGET_OS_MAJOR)" \
+			-e "TARGET_ARCH=$(TARGET_ARCH)" \
+			$(PACKAGE_NAME)/build-wheezy package
+	else ifeq ($(TARGET_OS),precise)
+		$(DOCKER_RUN) \
+			-e "TARGET_MANAGER=$(TARGET_MANAGER)" \
+			-e "TARGET_OS=$(TARGET_OS)" \
+			-e "TARGET_OS_MAJOR=$(TARGET_OS_MAJOR)" \
+			-e "TARGET_ARCH=$(TARGET_ARCH)" \
+			$(PACKAGE_NAME)/build-wheezy package
+	else ifeq ($(TARGET_OS),rhel)
+		ifeq ($(TARGET_OS_MAJOR),6)
+			$(DOCKER_RUN) \
+				-e "TARGET_MANAGER=$(TARGET_MANAGER)" \
+				-e "TARGET_OS=$(TARGET_OS)" \
+				-e "TARGET_OS_MAJOR=$(TARGET_OS_MAJOR)" \
+				-e "TARGET_ARCH=$(TARGET_ARCH)" \
+				$(PACKAGE_NAME)/build-centos-6 package
+		else
+			$(DOCKER_RUN) \
+				-e "TARGET_MANAGER=$(TARGET_MANAGER)" \
+				-e "TARGET_OS=$(TARGET_OS)" \
+				-e "TARGET_OS_MAJOR=$(TARGET_OS_MAJOR)" \
+				-e "TARGET_ARCH=$(TARGET_ARCH)" \
+				$(PACKAGE_NAME)/build-centos-7 package
+		endif
+	else
+		$(DOCKER_RUN) \
+			-e "TARGET_MANAGER=$(TARGET_MANAGER)" \
+			-e "TARGET_OS=$(TARGET_OS)" \
+			-e "TARGET_OS_MAJOR=$(TARGET_OS_MAJOR)" \
+			-e "TARGET_ARCH=$(TARGET_ARCH)" \
+			$(PACKAGE_NAME)/build-jessie package
+	endif
 
 package-tests:
 	$(DOCKER_RUN) $(PACKAGE_NAME)/centos-6-zabbix-2 test_package
@@ -75,9 +110,22 @@ release-sync:
 	aws s3 sync ./release/ s3://s3.cavaliercoder.com/libzbxpgsql/
 
 # run an agent with the compiled module
-agent:
-	$(DOCKER_RUN) -p 10050:10050 $(PACKAGE_NAME)/build agent
+agent-wheezy:
+	$(DOCKER_RUN) -p 10050:10050 $(PACKAGE_NAME)/build-wheezy agent
+
+agent-jessie:
+	$(DOCKER_RUN) -p 10050:10050 $(PACKAGE_NAME)/build-jessie agent
 
 # start an interactice session in a build container
-shell:
-	$(DOCKER_RUN) $(PACKAGE_NAME)/build /bin/bash
+shell-wheezy:
+	$(DOCKER_RUN) $(PACKAGE_NAME)/build-wheezy /bin/bash
+
+shell-jessie:
+	$(DOCKER_RUN) $(PACKAGE_NAME)/build-jessie /bin/bash
+
+shell-centos-6:
+	$(DOCKER_RUN) $(PACKAGE_NAME)/build-centos-6 /bin/bash
+
+shell-centos-7:
+	$(DOCKER_RUN) $(PACKAGE_NAME)/build-centos-7 /bin/bash
+
