@@ -51,7 +51,7 @@ package:
 				-e "TARGET_OS=$(TARGET_OS)" \
 				-e "TARGET_OS_MAJOR=$(TARGET_OS_MAJOR)" \
 				-e "TARGET_ARCH=$(TARGET_ARCH)" \
-				$(PACKAGE_NAME)/build-wheezy package; \
+				$(PACKAGE_NAME)/build-precise package; \
 		fi \
 	else \
 		if test '$(TARGET_OS_MAJOR)' = '6'; then \

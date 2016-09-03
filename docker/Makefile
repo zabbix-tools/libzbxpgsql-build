@@ -1,6 +1,7 @@
 docker-images: \
 	build-wheezy \
 	build-jessie \
+	build-precise \
 	build-centos-6 \
 	build-centos-7 \
 	centos-6-zabbix-2 \
@@ -54,6 +55,12 @@ build-wheezy:
 	docker build \
 		-f build-wheezy.Dockerfile \
 		-t libzbxpgsql/build-wheezy \
+		.
+
+build-precise:
+	docker build \
+		-f build-precise.Dockerfile \
+		-t libzbxpgsql/build-precise \
 		.
 
 build-centos-6:
