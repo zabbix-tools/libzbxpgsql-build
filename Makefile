@@ -38,12 +38,21 @@ dist:
 # create a release package
 package:
 	if test '$(TARGET_OS)' != 'rhel'; then \
-		$(DOCKER_RUN) \
-			-e "TARGET_MANAGER=$(TARGET_MANAGER)" \
-			-e "TARGET_OS=$(TARGET_OS)" \
-			-e "TARGET_OS_MAJOR=$(TARGET_OS_MAJOR)" \
-			-e "TARGET_ARCH=$(TARGET_ARCH)" \
-			$(PACKAGE_NAME)/build-wheezy package; \
+		if test '$(TARGET_OS_MAJOR)' != 'precise'; then \
+			$(DOCKER_RUN) \
+				-e "TARGET_MANAGER=$(TARGET_MANAGER)" \
+				-e "TARGET_OS=$(TARGET_OS)" \
+				-e "TARGET_OS_MAJOR=$(TARGET_OS_MAJOR)" \
+				-e "TARGET_ARCH=$(TARGET_ARCH)" \
+				$(PACKAGE_NAME)/build-jessie package; \
+		else \
+			$(DOCKER_RUN) \
+				-e "TARGET_MANAGER=$(TARGET_MANAGER)" \
+				-e "TARGET_OS=$(TARGET_OS)" \
+				-e "TARGET_OS_MAJOR=$(TARGET_OS_MAJOR)" \
+				-e "TARGET_ARCH=$(TARGET_ARCH)" \
+				$(PACKAGE_NAME)/build-wheezy package; \
+		fi \
 	else \
 		if test '$(TARGET_OS_MAJOR)' = '6'; then \
 			$(DOCKER_RUN) \
@@ -96,10 +105,7 @@ release-sync:
 	aws s3 sync ./release/ s3://s3.cavaliercoder.com/libzbxpgsql/
 
 # run an agent with the compiled module
-agent-wheezy:
-	$(DOCKER_RUN) -p 10050:10050 $(PACKAGE_NAME)/build-wheezy agent
-
-agent-jessie:
+agent:
 	$(DOCKER_RUN) -p 10050:10050 $(PACKAGE_NAME)/build-jessie agent
 
 # start an interactice session in a build container

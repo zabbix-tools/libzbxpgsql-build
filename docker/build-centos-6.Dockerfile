@@ -13,8 +13,7 @@ RUN yum -y groupinstall development \
   libtool \
   libpqxx-devel \
   libconfig-devel \
-  vim-enhanced \
-  && yum clean all
+  vim-enhanced
 
 # install zabbix_agent_bench
 RUN curl -LO https://sourceforge.net/projects/zabbixagentbench/files/linux/zabbix_agent_bench-0.4.0.x86_64.tar.gz \
@@ -32,7 +31,15 @@ RUN \
   && echo "LogType=console" >> /etc/zabbix/zabbix_agentd.conf \
   && echo "LoadModulePath=/root/libzbxpgsql/libzbxpgsql/src/.libs" >> /etc/zabbix/zabbix_agentd.conf \
   && echo "LoadModule=libzbxpgsql.so" >> /etc/zabbix/zabbix_agentd.conf \
-  && rm -rf zabbix-release-3.0-1.el6.noarch.rpm \
+  && rm -rf zabbix-release-3.0-1.el6.noarch.rpm
+
+# install postgresql libs
+RUN \
+  curl -LO https://download.postgresql.org/pub/repos/yum/9.5/redhat/rhel-6-x86_64/pgdg-centos95-9.5-2.noarch.rpm \
+  && rpm -iv pgdg-centos95-9.5-2.noarch.rpm \
+  && yum -y install postgresql95 postgresql95-server postgresql95-devel \
+  && ln -s /usr/pgsql-9.5/bin/pg_config /usr/local/bin \
+  && rm -rf pgdg-centos95-9.5-2.noarch.rpm \
   && yum clean all
 
 EXPOSE 10050
