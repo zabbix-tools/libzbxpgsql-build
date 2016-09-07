@@ -2,6 +2,7 @@ docker-images: \
 	build-wheezy \
 	build-jessie \
 	build-precise \
+	build-trusty \
 	build-centos-6 \
 	build-centos-7 \
 	centos-6-zabbix-2 \
@@ -16,7 +17,18 @@ docker-images: \
 	ubuntu-trusty-zabbix-2 \
 	ubuntu-trusty-zabbix-3
 
+docker-clean-all:
+	docker ps -aq | xargs docker rm
+	docker images -q | xargs docker rmi
+
 # run build container
+run-wheezy:
+	docker run \
+		-it \
+		--rm \
+		libzbxpgsql/build-wheezy \
+		/bin/bash
+
 run-jessie:
 	docker run \
 		-it \
@@ -24,11 +36,18 @@ run-jessie:
 		libzbxpgsql/build-jessie \
 		/bin/bash
 
-run-wheezy:
+run-precise:
 	docker run \
 		-it \
 		--rm \
-		libzbxpgsql/build-wheezy \
+		libzbxpgsql/build-precise \
+		/bin/bash
+
+run-trusty:
+	docker run \
+		-it \
+		--rm \
+		libzbxpgsql/build-trusty \
 		/bin/bash
 
 run-centos-6:
@@ -61,6 +80,12 @@ build-precise:
 	docker build \
 		-f build-precise.Dockerfile \
 		-t libzbxpgsql/build-precise \
+		.
+
+build-trusty:
+	docker build \
+		-f build-trusty.Dockerfile \
+		-t libzbxpgsql/build-trusty \
 		.
 
 build-centos-6:

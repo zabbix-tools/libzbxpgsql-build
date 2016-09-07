@@ -37,38 +37,20 @@ dist:
 
 # create a release package
 package:
-	if test '$(TARGET_OS)' != 'rhel'; then \
-		if test '$(TARGET_OS_MAJOR)' != 'precise'; then \
-			$(DOCKER_RUN) \
-				-e "TARGET_MANAGER=$(TARGET_MANAGER)" \
-				-e "TARGET_OS=$(TARGET_OS)" \
-				-e "TARGET_OS_MAJOR=$(TARGET_OS_MAJOR)" \
-				-e "TARGET_ARCH=$(TARGET_ARCH)" \
-				$(PACKAGE_NAME)/build-jessie package; \
-		else \
-			$(DOCKER_RUN) \
-				-e "TARGET_MANAGER=$(TARGET_MANAGER)" \
-				-e "TARGET_OS=$(TARGET_OS)" \
-				-e "TARGET_OS_MAJOR=$(TARGET_OS_MAJOR)" \
-				-e "TARGET_ARCH=$(TARGET_ARCH)" \
-				$(PACKAGE_NAME)/build-precise package; \
-		fi \
+	if test '$(TARGET_OS)' = 'rhel'; then \
+		$(DOCKER_RUN) \
+			-e "TARGET_MANAGER=$(TARGET_MANAGER)" \
+			-e "TARGET_OS=$(TARGET_OS)" \
+			-e "TARGET_OS_MAJOR=$(TARGET_OS_MAJOR)" \
+			-e "TARGET_ARCH=$(TARGET_ARCH)" \
+			$(PACKAGE_NAME)/build-centos-$(TARGET_OS_MAJOR) package; \
 	else \
-		if test '$(TARGET_OS_MAJOR)' = '6'; then \
-			$(DOCKER_RUN) \
-				-e "TARGET_MANAGER=$(TARGET_MANAGER)" \
-				-e "TARGET_OS=$(TARGET_OS)" \
-				-e "TARGET_OS_MAJOR=$(TARGET_OS_MAJOR)" \
-				-e "TARGET_ARCH=$(TARGET_ARCH)" \
-				$(PACKAGE_NAME)/build-centos-6 package; \
-		else \
-			$(DOCKER_RUN) \
-				-e "TARGET_MANAGER=$(TARGET_MANAGER)" \
-				-e "TARGET_OS=$(TARGET_OS)" \
-				-e "TARGET_OS_MAJOR=$(TARGET_OS_MAJOR)" \
-				-e "TARGET_ARCH=$(TARGET_ARCH)" \
-				$(PACKAGE_NAME)/build-centos-7 package; \
-		fi \
+		$(DOCKER_RUN) \
+			-e "TARGET_MANAGER=$(TARGET_MANAGER)" \
+			-e "TARGET_OS=$(TARGET_OS)" \
+			-e "TARGET_OS_MAJOR=$(TARGET_OS_MAJOR)" \
+			-e "TARGET_ARCH=$(TARGET_ARCH)" \
+			$(PACKAGE_NAME)/build-$(TARGET_OS_MAJOR) package; \
 	fi
 
 package-tests:
@@ -90,7 +72,7 @@ clean:
 
 # run key compatability tests (requires testenv)
 key-tests:
-	docker exec -it libzbxpgsql_agent_1 /entrypoint.sh test
+	docker exec -it libzbxpgsqlbuild_agent_1 /entrypoint.sh test
 
 # start a test environment including each postgresql version and a zabbix agent
 testenv:
@@ -114,6 +96,12 @@ shell-wheezy:
 
 shell-jessie:
 	$(DOCKER_RUN) $(PACKAGE_NAME)/build-jessie /bin/bash
+
+shell-precise:
+	$(DOCKER_RUN) $(PACKAGE_NAME)/build-precise /bin/bash
+
+shell-trusty:
+	$(DOCKER_RUN) $(PACKAGE_NAME)/build-trusty /bin/bash
 
 shell-centos-6:
 	$(DOCKER_RUN) $(PACKAGE_NAME)/build-centos-6 /bin/bash
