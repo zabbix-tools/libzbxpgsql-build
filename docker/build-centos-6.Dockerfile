@@ -29,8 +29,6 @@ RUN \
   && mkdir -p /usr/lib64/zabbix/modules \
   && echo "AllowRoot=1" >> /etc/zabbix/zabbix_agentd.conf \
   && echo "LogType=console" >> /etc/zabbix/zabbix_agentd.conf \
-  && echo "LoadModulePath=/root/libzbxpgsql/libzbxpgsql/src/.libs" >> /etc/zabbix/zabbix_agentd.conf \
-  && echo "LoadModule=libzbxpgsql.so" >> /etc/zabbix/zabbix_agentd.conf \
   && rm -rf zabbix-release-3.0-1.el6.noarch.rpm
 
 # install postgresql libs
