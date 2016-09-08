@@ -23,7 +23,7 @@ EOF
 ```
 sudo yum -y install docker-engine
 ```
-* Enable and start docker:
+* Enable and start docker daemon:
 ```
 sudo systemctl enable docker.service && sudo systemctl start docker.service
 ```
@@ -33,7 +33,7 @@ sudo usermod -G docker -a <userid>
 ```
 __Note: you'll need to logout/login to enable the new group permission__
 
-* Install docker-compose
+* Install docker-compose (https://docs.docker.com/compose/install/):
 ```
 sudo curl -L https://github.com/docker/compose/releases/download/1.8.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
 sudo chmod +x /usr/local/bin/docker-compose
