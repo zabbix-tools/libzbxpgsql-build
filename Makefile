@@ -1,7 +1,7 @@
 PACKAGE_NAME = libzbxpgsql
 PACKAGE_VERSION = 1.1.0
 
-ZABBIX_VERSION = 3.0.2
+ZABBIX_VERSION = 3.0.4
 
 # args common to all 'docker run' commands
 DOCKER_RUNARGS = -it --rm \
@@ -24,22 +24,34 @@ all: libzbxpgsql.so
 docker-images:
 	cd docker && make docker-images
 
+docker-clean-all:
+	cd docker && make docker-clean-all
+
 # build module
 libzbxpgsql.so:
-	$(DOCKER_RUN) $(PACKAGE_NAME)/build build
+	$(DOCKER_RUN) $(PACKAGE_NAME)/build-jessie build
 
 # create source tarball
 dist:
-	$(DOCKER_RUN) $(PACKAGE_NAME)/build dist
+	$(DOCKER_RUN) $(PACKAGE_NAME)/build-jessie dist
 
 # create a release package
 package:
-	$(DOCKER_RUN) \
-		-e "TARGET_MANAGER=$(TARGET_MANAGER)" \
-		-e "TARGET_OS=$(TARGET_OS)" \
-		-e "TARGET_OS_MAJOR=$(TARGET_OS_MAJOR)" \
-		-e "TARGET_ARCH=$(TARGET_ARCH)" \
-		$(PACKAGE_NAME)/build package
+	if test '$(TARGET_OS)' = 'rhel'; then \
+		$(DOCKER_RUN) \
+			-e "TARGET_MANAGER=$(TARGET_MANAGER)" \
+			-e "TARGET_OS=$(TARGET_OS)" \
+			-e "TARGET_OS_MAJOR=$(TARGET_OS_MAJOR)" \
+			-e "TARGET_ARCH=$(TARGET_ARCH)" \
+			$(PACKAGE_NAME)/build-centos-$(TARGET_OS_MAJOR) package; \
+	else \
+		$(DOCKER_RUN) \
+			-e "TARGET_MANAGER=$(TARGET_MANAGER)" \
+			-e "TARGET_OS=$(TARGET_OS)" \
+			-e "TARGET_OS_MAJOR=$(TARGET_OS_MAJOR)" \
+			-e "TARGET_ARCH=$(TARGET_ARCH)" \
+			$(PACKAGE_NAME)/build-$(TARGET_OS_MAJOR) package; \
+	fi
 
 package-tests:
 	$(DOCKER_RUN) $(PACKAGE_NAME)/centos-6-zabbix-2 test_package
@@ -60,7 +72,7 @@ clean:
 
 # run key compatability tests (requires testenv)
 key-tests:
-	docker exec -it libzbxpgsql_agent_1 /entrypoint.sh test
+	docker exec -it libzbxpgsqlbuild_agent_1 /entrypoint.sh test
 
 # start a test environment including each postgresql version and a zabbix agent
 testenv:
@@ -76,8 +88,24 @@ release-sync:
 
 # run an agent with the compiled module
 agent:
-	$(DOCKER_RUN) -p 10050:10050 $(PACKAGE_NAME)/build agent
+	$(DOCKER_RUN) -p 10050:10050 $(PACKAGE_NAME)/build-jessie agent
 
 # start an interactice session in a build container
-shell:
-	$(DOCKER_RUN) $(PACKAGE_NAME)/build /bin/bash
+shell-wheezy:
+	$(DOCKER_RUN) $(PACKAGE_NAME)/build-wheezy /bin/bash
+
+shell-jessie:
+	$(DOCKER_RUN) $(PACKAGE_NAME)/build-jessie /bin/bash
+
+shell-precise:
+	$(DOCKER_RUN) $(PACKAGE_NAME)/build-precise /bin/bash
+
+shell-trusty:
+	$(DOCKER_RUN) $(PACKAGE_NAME)/build-trusty /bin/bash
+
+shell-centos-6:
+	$(DOCKER_RUN) $(PACKAGE_NAME)/build-centos-6 /bin/bash
+
+shell-centos-7:
+	$(DOCKER_RUN) $(PACKAGE_NAME)/build-centos-7 /bin/bash
+

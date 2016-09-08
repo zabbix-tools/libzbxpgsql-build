@@ -1,4 +1,4 @@
-FROM debian:jessie
+FROM ubuntu:precise
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -28,17 +28,15 @@ RUN curl -LO https://sourceforge.net/projects/zabbixagentbench/files/linux/zabbi
 
 # install zabbix agent
 RUN \
-  curl -LO http://repo.zabbix.com/zabbix/3.0/debian/pool/main/z/zabbix-release/zabbix-release_3.0-1+jessie_all.deb \
-  && dpkg -i zabbix-release_3.0-1+jessie_all.deb \
+  curl -LO http://repo.zabbix.com/zabbix/2.2/ubuntu/pool/main/z/zabbix-release/zabbix-release_2.2-1+precise_all.deb \
+  && dpkg -i zabbix-release_2.2-1+precise_all.deb \
   && apt-get update \
   && apt-get -y install zabbix-agent zabbix-get \
   && mkdir -p /usr/lib/zabbix/modules \
   && mkdir -p /var/run/zabbix && chown zabbix.zabbix /var/run/zabbix \
   && echo "AllowRoot=1" >> /etc/zabbix/zabbix_agentd.conf \
   && echo "LogType=console" >> /etc/zabbix/zabbix_agentd.conf \
-  && echo "LoadModulePath=/root/libzbxpgsql/libzbxpgsql/src/.libs" >> /etc/zabbix/zabbix_agentd.conf \
-  && echo "LoadModule=libzbxpgsql.so" >> /etc/zabbix/zabbix_agentd.conf \
-  && rm -rf zabbix-release_3.0-1+jessie_all.deb /var/lib/apt/lists/*
+  && rm -rf zabbix-release_2.2-1+precise_all.deb /var/lib/apt/lists/*
 
 EXPOSE 10050
 
