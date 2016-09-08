@@ -8,8 +8,8 @@ Build and test scripts for [libzbxpgsql](https://github.com/cavaliercoder/libzbx
 ```
 sudo yum -y groupinstall development
 ```
-* Install docker repository:
-```
+* Install docker repository (https://docs.docker.com/engine/installation/linux/centos/):
+  *```
 sudo tee /etc/yum.repos.d/docker.repo <<-'EOF'
 [dockerrepo]
 name=Docker Repository
@@ -23,11 +23,6 @@ EOF
 ```
 sudo yum -y install docker-engine
 ```
-* Install docker-compose
-```
-sudo curl -L https://github.com/docker/compose/releases/download/1.8.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose
-```
 * Enable and start docker:
 ```
 sudo systemctl enable docker.service && sudo systemctl start docker.service
@@ -36,8 +31,13 @@ sudo systemctl enable docker.service && sudo systemctl start docker.service
 ```
 sudo usermod -G docker -a <userid>
 ```
-   * Note: you'll need to logout/login to enable the new group permission
+  * Note: you'll need to logout/login to enable the new group permission
 
+* Install docker-compose
+```
+sudo curl -L https://github.com/docker/compose/releases/download/1.8.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+```
 * Clone this repo
 * Clone `libzbxpgsql` sources into `./libzbxpgsql`
 * Ensure `PACKAGE_VERSION` in `Makefile` matches the `AC_INIT` version in
