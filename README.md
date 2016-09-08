@@ -37,6 +37,7 @@ sudo systemctl enable docker.service && sudo systemctl start docker.service
 sudo usermod -G docker -a <userid>
 ```
    * Note: you'll need to logout/login to enable the new group permission
+
 6. Clone this repo
 7. Clone `libzbxpgsql` sources into `./libzbxpgsql`
 8. Ensure `PACKAGE_VERSION` in `Makefile` matches the `AC_INIT` version in
