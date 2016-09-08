@@ -31,7 +31,7 @@ sudo systemctl enable docker.service && sudo systemctl start docker.service
 ```
 sudo usermod -G docker -a <userid>
 ```
-  * Note: you'll need to logout/login to enable the new group permission
+_Note: you'll need to logout/login to enable the new group permission_
 
 * Install docker-compose
 ```
