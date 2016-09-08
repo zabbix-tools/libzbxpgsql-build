@@ -115,7 +115,7 @@ All Dockerfiles are stored and built in `./docker`.
   * centos-6
   * centos-7
 
-* `make clean`:
+* `sudo make clean`:
   
   Destroy all build and package output, including the `./release` directory
 
