@@ -7,7 +7,7 @@ Build and test scripts for [libzbxpgsql](https://github.com/cavaliercoder/libzbx
 1. Install OS development packages
    * `sudo yum -y groupinstall core base development`
 2. Install docker repository:
-* ```sudo tee /etc/yum.repos.d/docker.repo <<-'EOF'
+   * ```sudo tee /etc/yum.repos.d/docker.repo <<-'EOF'
 [dockerrepo]
 name=Docker Repository
 baseurl=https://yum.dockerproject.org/repo/main/centos/7/
