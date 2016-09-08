@@ -5,7 +5,9 @@ Build and test scripts for [libzbxpgsql](https://github.com/cavaliercoder/libzbx
 ## Setup (based on Centos 7)
 
 1. Install OS development packages
-   * `sudo yum -y groupinstall core base development`
+```
+sudo yum -y groupinstall development
+```
 2. Install docker repository:
 ```
 sudo tee /etc/yum.repos.d/docker.repo <<-'EOF'
@@ -18,14 +20,22 @@ gpgkey=https://yum.dockerproject.org/gpg
 EOF
 ```
 3. Install docker
-   * `sudo yum -y install docker-engine`
+```
+sudo yum -y install docker-engine
+```
 4. Install docker-compose
-   * ```sudo curl -L https://github.com/docker/compose/releases/download/1.8.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose```
-   * `sudo chmod +x /usr/local/bin/docker-compose`
+```
+sudo curl -L https://github.com/docker/compose/releases/download/1.8.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+```
 4. Enable and start docker:
-   * `sudo systemctl enable docker.service && sudo systemctl start docker.service`
+```
+sudo systemctl enable docker.service && sudo systemctl start docker.service
+```
 5. Allow your userid to connect to docker daemon:
-   * `sudo usermod -G docker -a <userid>`
+```
+sudo usermod -G docker -a <userid>
+```
    * Note: you'll need to logout/login to enable the new group permission
 6. Clone this repo
 7. Clone `libzbxpgsql` sources into `./libzbxpgsql`
@@ -93,7 +103,7 @@ All Dockerfiles are stored and built in `./docker`.
   
   Start the Zabbix v3 agent on the build container
 
-* `make shell-[OS]`:
+* `make shell-<OS>`:
   
   Run an interactive shell in a new instance of the `libzbxpgsql/build`
   container on specified OS.  Supported OS's are:
