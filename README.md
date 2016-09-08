@@ -9,7 +9,7 @@ Build and test scripts for [libzbxpgsql](https://github.com/cavaliercoder/libzbx
 sudo yum -y groupinstall development
 ```
 * Install docker repository (https://docs.docker.com/engine/installation/linux/centos/):
-  *```
+```
 sudo tee /etc/yum.repos.d/docker.repo <<-'EOF'
 [dockerrepo]
 name=Docker Repository
