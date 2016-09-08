@@ -4,11 +4,11 @@ Build and test scripts for [libzbxpgsql](https://github.com/cavaliercoder/libzbx
 
 ## Setup (based on Centos 7)
 
-1. Install OS development packages
+* Install OS development packages
 ```
 sudo yum -y groupinstall development
 ```
-2. Install docker repository:
+* Install docker repository:
 ```
 sudo tee /etc/yum.repos.d/docker.repo <<-'EOF'
 [dockerrepo]
@@ -19,31 +19,31 @@ gpgcheck=1
 gpgkey=https://yum.dockerproject.org/gpg
 EOF
 ```
-3. Install docker
+* Install docker
 ```
 sudo yum -y install docker-engine
 ```
-4. Install docker-compose
+* Install docker-compose
 ```
 sudo curl -L https://github.com/docker/compose/releases/download/1.8.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
 sudo chmod +x /usr/local/bin/docker-compose
 ```
-4. Enable and start docker:
+* Enable and start docker:
 ```
 sudo systemctl enable docker.service && sudo systemctl start docker.service
 ```
-5. Allow your userid to connect to docker daemon:
+* Allow your userid to connect to docker daemon:
 ```
 sudo usermod -G docker -a <userid>
 ```
    * Note: you'll need to logout/login to enable the new group permission
 
-6. Clone this repo
-7. Clone `libzbxpgsql` sources into `./libzbxpgsql`
-8. Ensure `PACKAGE_VERSION` in `Makefile` matches the `AC_INIT` version in
+* Clone this repo
+* Clone `libzbxpgsql` sources into `./libzbxpgsql`
+* Ensure `PACKAGE_VERSION` in `Makefile` matches the `AC_INIT` version in
    `./libzbxpgsql/configure.ac`
-9. Unzip Zabbix sources into `./zabbix-X.X.X` (currently 3.0.4 and 2.4.8)
-10. Build the Docker images with `make docker-images`
+* Unzip Zabbix sources into `./zabbix-X.X.X` (currently 3.0.4 and 2.4.8)
+* Build the Docker images with `make docker-images`
     * Take a nap, this will run a while...
 
 ## Docker images
