@@ -39,7 +39,7 @@ function make_build(){
   check_env
 
   cd ${WORKDIR}/${PACKAGE_NAME}
-  [[ -f configure ]] || autogen.sh || exit 1
+  [[ -f configure ]] || ./autogen.sh || exit 1
   [[ -f Makefile ]] || ./configure || exit 1
   make || exit 1
 }
@@ -265,6 +265,7 @@ case $1 in
 
   "agent")
     PACKAGE_PATH=${WORKDIR}/${PACKAGE_NAME}/src/.libs/${PACKAGE_NAME}.so
+    CONF_PATH=${WORKDIR}/${PACKAGE_NAME}/query.conf
 
     # load module if present
     if [[ -f $PACKAGE_PATH ]]; then
@@ -272,8 +273,16 @@ case $1 in
         $PACKAGE_PATH \
         /usr/lib/zabbix/modules/${PACKAGE_NAME}.so
 
-      echo "LoadModule=${PACKAGE_NAME}.so" > \
-        /etc/zabbix/zabbix_agentd.d/${PACKAGE_NAME}.conf
+      if [[ ! -f /etc/zabbix/zabbix_agent.d/${PACKAGE_NAME}.conf ]]; then
+        echo "LoadModule=${PACKAGE_NAME}.so" > \
+          /etc/zabbix/zabbix_agentd.d/${PACKAGE_NAME}.conf
+      fi
+    fi
+
+    # add config file if needed
+    if [[ -f $CONF_PATH && ! -f /etc/${PACKAGE_NAME}.d/query.conf ]]; then
+      mkdir /etc/${PACKAGE_NAME}.d
+      cp -v $CONF_PATH /etc/${PACKAGE_NAME}.d
     fi
 
     # start agent
