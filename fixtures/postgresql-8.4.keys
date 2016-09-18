@@ -21,6 +21,11 @@ pg.query.string[{%PGCONN},{%PGDATABASE},"SELECT $1::text || $2::text;",hello,wor
 pg.query.integer[{%PGCONN},{%PGDATABASE},"SELECT $1::int;",1234]
 pg.query.double[{%PGCONN},{%PGDATABASE},"SELECT $1::decimal;",12.34]
 pg.query.discovery[{%PGCONN},{%PGDATABASE},"SELECT * FROM pg_database;"]
+# test new query config
+pg.query.string[{%PGCONN},{%PGDATABASE},teststr,hello,world]
+pg.query.integer[{%PGCONN},{%PGDATABASE},testint,1234]
+pg.query.double[{%PGCONN},{%PGDATABASE},testdbl,12.34]
+pg.query.discovery[{%PGCONN},{%PGDATABASE},testdsc]
 
 pg.backends.count[{%PGCONN},{%PGDATABASE}]
 pg.backends.count[{%PGCONN},{%PGDATABASE},{%PGDATABASE}]
