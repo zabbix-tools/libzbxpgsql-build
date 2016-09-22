@@ -2,7 +2,10 @@
 
 BULLET="==>"
 ARCH=$(uname -m)
-ZABBIX_VERSION_MAJOR=${ZABBIX_VERSION:0:1}
+
+a=( ${ZABBIX_VERSION//./ } )
+ZABBIX_VERSION_MAJOR="${a[0]}"
+ZABBIX_VERSION_MINOR="${a[1]}"
 
 function die() {
   echo "$@"
@@ -70,8 +73,11 @@ function make_package() {
   [[ -z "${TARGET_ARCH}" ]] && die "TARGET_ARCH not set"
   [[ -z "${TARGET_MANAGER}" ]] && die "TARGET_MANAGER not set"
 
+  # replace 'centos' with 'rhel'
+  [[ "${TARGET_OS}" == "centos" ]] && TARGET_OS="rhel"
+
   # create release destination path
-  RELEASE_PATH=${WORKDIR}/release/${TARGET_MANAGER}/zabbix${ZABBIX_VERSION_MAJOR}/${TARGET_OS}/${TARGET_OS_MAJOR}/${TARGET_ARCH}
+  RELEASE_PATH=${WORKDIR}/release/${TARGET_MANAGER}/zabbix${ZABBIX_VERSION_MAJOR}${ZABBIX_VERSION_MINOR}/${TARGET_OS}/${TARGET_OS_MAJOR}/${TARGET_ARCH}
   mkdir -vp ${RELEASE_PATH} || die "error creating release path"
 
   # build an rpm
@@ -216,7 +222,6 @@ function test_package() {
     esac
 
     PACKAGE_PATH=release/apt/zabbix${ZABBIX_VERSION_MAJOR}/${OS}/${OSVER}/${ARCH}/${PACKAGE_NAME}_${PACKAGE_VERSION}-1+${OSVER}_${ARCH}.deb
-
 
     echo "${BULLET} Package info:"
     dpkg-deb -I ${WORKDIR}/${PACKAGE_PATH}

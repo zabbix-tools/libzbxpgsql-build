@@ -1,7 +1,7 @@
 PACKAGE_NAME = libzbxpgsql
 PACKAGE_VERSION = 1.1.0
 
-ZABBIX_VERSION = 3.0.4
+ZABBIX_VERSION = 3.2.0
 
 # args common to all 'docker run' commands
 DOCKER_RUNARGS = -it --rm \
@@ -21,6 +21,10 @@ TARGET_ARCH = $(uname -m)
 
 all: libzbxpgsql.so
 
+clean:
+	rm -rvf release
+	cd $(PACKAGE_NAME) && make clean && make distclean
+
 docker-images:
 	cd docker && make docker-images
 
@@ -37,38 +41,32 @@ dist:
 
 # create a release package
 package:
-	if test '$(TARGET_OS)' = 'rhel'; then \
-		$(DOCKER_RUN) \
-			-e "TARGET_MANAGER=$(TARGET_MANAGER)" \
-			-e "TARGET_OS=$(TARGET_OS)" \
-			-e "TARGET_OS_MAJOR=$(TARGET_OS_MAJOR)" \
-			-e "TARGET_ARCH=$(TARGET_ARCH)" \
-			$(PACKAGE_NAME)/build-centos-$(TARGET_OS_MAJOR) package; \
-	else \
-		$(DOCKER_RUN) \
-			-e "TARGET_MANAGER=$(TARGET_MANAGER)" \
-			-e "TARGET_OS=$(TARGET_OS)" \
-			-e "TARGET_OS_MAJOR=$(TARGET_OS_MAJOR)" \
-			-e "TARGET_ARCH=$(TARGET_ARCH)" \
-			$(PACKAGE_NAME)/build-$(TARGET_OS_MAJOR) package; \
-	fi
+	$(DOCKER_RUN) \
+		-e "TARGET_MANAGER=$(TARGET_MANAGER)" \
+		-e "TARGET_OS=$(TARGET_OS)" \
+		-e "TARGET_OS_MAJOR=$(TARGET_OS_MAJOR)" \
+		-e "TARGET_ARCH=$(TARGET_ARCH)" \
+		$(PACKAGE_NAME)/build-$(TARGET_OS)-$(TARGET_OS_MAJOR) package;
 
 package-tests:
-	$(DOCKER_RUN) $(PACKAGE_NAME)/centos-6-zabbix-2 test_package
-	$(DOCKER_RUN) $(PACKAGE_NAME)/centos-6-zabbix-3 test_package
-	$(DOCKER_RUN) $(PACKAGE_NAME)/centos-7-zabbix-2 test_package
-	$(DOCKER_RUN) $(PACKAGE_NAME)/centos-7-zabbix-3 test_package
-	$(DOCKER_RUN) $(PACKAGE_NAME)/debian-wheezy-zabbix-2 test_package
-	$(DOCKER_RUN) $(PACKAGE_NAME)/debian-wheezy-zabbix-3 test_package
-	$(DOCKER_RUN) $(PACKAGE_NAME)/debian-jessie-zabbix-2 test_package
-	$(DOCKER_RUN) $(PACKAGE_NAME)/debian-jessie-zabbix-3 test_package
-	$(DOCKER_RUN) $(PACKAGE_NAME)/ubuntu-precise-zabbix-2 test_package
-	$(DOCKER_RUN) $(PACKAGE_NAME)/ubuntu-trusty-zabbix-2 test_package
-	$(DOCKER_RUN) $(PACKAGE_NAME)/ubuntu-trusty-zabbix-3 test_package
-
-clean:
-	rm -rvf release
-	cd $(PACKAGE_NAME) && make clean && make distclean
+	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-22-centos-6 test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-22-centos-7 test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-22-debian-wheezy test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-22-debian-jessie test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-22-ubuntu-precise test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-22-ubuntu-trusty test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-30-centos-6 test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-30-centos-7 test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-30-debian-wheezy test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-30-debian-jessie test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-30-ubuntu-trusty test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-30-ubuntu-xenial test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-32-centos-6 test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-32-centos-7 test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-32-debian-wheezy test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-32-debian-jessie test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-32-ubuntu-trusty test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-32-ubuntu-xenial test_package
 
 # run key compatability tests (requires testenv)
 key-tests:
@@ -92,16 +90,16 @@ agent:
 
 # start an interactice session in a build container
 shell-wheezy:
-	$(DOCKER_RUN) $(PACKAGE_NAME)/build-wheezy /bin/bash
+	$(DOCKER_RUN) $(PACKAGE_NAME)/build-debian-wheezy /bin/bash
 
 shell-jessie:
-	$(DOCKER_RUN) $(PACKAGE_NAME)/build-jessie /bin/bash
+	$(DOCKER_RUN) $(PACKAGE_NAME)/build-debian-jessie /bin/bash
 
 shell-precise:
-	$(DOCKER_RUN) $(PACKAGE_NAME)/build-precise /bin/bash
+	$(DOCKER_RUN) $(PACKAGE_NAME)/build-ubuntu-precise /bin/bash
 
 shell-trusty:
-	$(DOCKER_RUN) $(PACKAGE_NAME)/build-trusty /bin/bash
+	$(DOCKER_RUN) $(PACKAGE_NAME)/build-ubuntu-trusty /bin/bash
 
 shell-centos-6:
 	$(DOCKER_RUN) $(PACKAGE_NAME)/build-centos-6 /bin/bash

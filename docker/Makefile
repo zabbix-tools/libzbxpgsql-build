@@ -1,53 +1,73 @@
+all: docker-images
+
 docker-images: \
-	build-wheezy \
-	build-jessie \
-	build-precise \
-	build-trusty \
 	build-centos-6 \
 	build-centos-7 \
-	centos-6-zabbix-2 \
-	centos-6-zabbix-3 \
-	centos-7-zabbix-2 \
-	centos-7-zabbix-3 \
-	debian-wheezy-zabbix-2 \
-	debian-wheezy-zabbix-3 \
-	debian-jessie-zabbix-2 \
-	debian-jessie-zabbix-3 \
-	ubuntu-precise-zabbix-2 \
-	ubuntu-trusty-zabbix-2 \
-	ubuntu-trusty-zabbix-3
+	build-debian-wheezy \
+	build-debian-jessie \
+	build-ubuntu-precise \
+	build-ubuntu-trusty \
+	build-ubuntu-xenial \
+	zabbix-22-centos-6 \
+	zabbix-22-centos-7 \
+	zabbix-22-debian-wheezy \
+	zabbix-22-debian-jessie \
+	zabbix-22-ubuntu-precise \
+	zabbix-22-ubuntu-trusty \
+	zabbix-30-centos-6 \
+	zabbix-30-centos-7 \
+	zabbix-30-debian-jessie \
+	zabbix-30-debian-wheezy \
+	zabbix-30-ubuntu-trusty \
+	zabbix-30-ubuntu-xenial \
+	zabbix-32-centos-6 \
+	zabbix-32-centos-7 \
+	zabbix-32-debian-jessie \
+	zabbix-32-debian-wheezy \
+	zabbix-32-ubuntu-trusty \
+	zabbix-32-ubuntu-xenial
 
 docker-clean-all:
 	docker ps -aq | xargs docker rm
 	docker images -q | xargs docker rmi
+
+docker-images-update:
+	docker pull centos:6
+	docker pull centos:7
+	docker pull debian:wheezy
+	docker pull debian:jessie
+	docker pull ubuntu:trusty
+	docker pull ubuntu:precise
+	docker pull ubuntu:xenial
+	make docker-images
 
 # run build container
 run-wheezy:
 	docker run \
 		-it \
 		--rm \
-		libzbxpgsql/build-wheezy \
+		libzbxpgsql/build-debian-wheezy \
 		/bin/bash
 
 run-jessie:
 	docker run \
 		-it \
 		--rm \
-		libzbxpgsql/build-jessie \
+		libzbxpgsql/build-debian-jessie \
 		/bin/bash
 
 run-precise:
 	docker run \
 		-it \
 		--rm \
-		libzbxpgsql/build-precise \
+		libzbxpgsql/build-ubuntu-precise \
 		/bin/bash
 
 run-trusty:
 	docker run \
 		-it \
 		--rm \
-		libzbxpgsql/build-trusty \
+		libzbxpgsql/build-ubuntu-trusty \
 		/bin/bash
 
 run-centos-6:
@@ -64,30 +84,6 @@ run-centos-7:
 		libzbxpgsql/build-centos-7 \
 		/bin/bash
 
-build-jessie:
-	docker build \
-		-f build-jessie.Dockerfile \
-		-t libzbxpgsql/build-jessie \
-		.
-
-build-wheezy:
-	docker build \
-		-f build-wheezy.Dockerfile \
-		-t libzbxpgsql/build-wheezy \
-		.
-
-build-precise:
-	docker build \
-		-f build-precise.Dockerfile \
-		-t libzbxpgsql/build-precise \
-		.
-
-build-trusty:
-	docker build \
-		-f build-trusty.Dockerfile \
-		-t libzbxpgsql/build-trusty \
-		.
-
 build-centos-6:
 	docker build \
 		-f build-centos-6.Dockerfile \
@@ -100,67 +96,140 @@ build-centos-7:
 		-t libzbxpgsql/build-centos-7 \
 		.
 
-centos-6-zabbix-2:
+build-debian-wheezy:
 	docker build \
-		-f centos-6-zabbix-2.Dockerfile \
-		-t libzbxpgsql/centos-6-zabbix-2 \
+		-f build-debian-wheezy.Dockerfile \
+		-t libzbxpgsql/build-debian-wheezy \
 		.
 
-centos-6-zabbix-3:
+build-debian-jessie:
 	docker build \
-		-f centos-6-zabbix-3.Dockerfile \
-		-t libzbxpgsql/centos-6-zabbix-3 \
+		-f build-debian-jessie.Dockerfile \
+		-t libzbxpgsql/build-debian-jessie \
 		.
 
-centos-7-zabbix-2:
+build-ubuntu-precise:
 	docker build \
-		-f centos-7-zabbix-2.Dockerfile \
-		-t libzbxpgsql/centos-7-zabbix-2 \
+		-f build-ubuntu-precise.Dockerfile \
+		-t libzbxpgsql/build-ubuntu-precise \
 		.
 
-centos-7-zabbix-3:
+build-ubuntu-trusty:
 	docker build \
-		-f centos-7-zabbix-3.Dockerfile \
-		-t libzbxpgsql/centos-7-zabbix-3 \
+		-f build-ubuntu-trusty.Dockerfile \
+		-t libzbxpgsql/build-ubuntu-trusty \
 		.
 
-debian-wheezy-zabbix-2:
+build-ubuntu-xenial:
 	docker build \
-		-f debian-wheezy-zabbix-2.Dockerfile \
-		-t libzbxpgsql/debian-wheezy-zabbix-2 \
-		.
-debian-wheezy-zabbix-3:
-	docker build \
-		-f debian-wheezy-zabbix-3.Dockerfile \
-		-t libzbxpgsql/debian-wheezy-zabbix-3 \
+		-f build-ubuntu-xenial.Dockerfile \
+		-t libzbxpgsql/build-ubuntu-xenial \
 		.
 
-debian-jessie-zabbix-2:
+zabbix-22-centos-6:
 	docker build \
-		-f debian-jessie-zabbix-2.Dockerfile \
-		-t libzbxpgsql/debian-jessie-zabbix-2 \
-		.
-debian-jessie-zabbix-3:
-	docker build \
-		-f debian-jessie-zabbix-3.Dockerfile \
-		-t libzbxpgsql/debian-jessie-zabbix-3 \
+		-f zabbix-22-centos-6.Dockerfile \
+		-t libzbxpgsql/zabbix-22-centos-6 \
 		.
 
-ubuntu-precise-zabbix-2:
+zabbix-22-centos-7:
 	docker build \
-		-f ubuntu-precise-zabbix-2.Dockerfile \
-		-t libzbxpgsql/ubuntu-precise-zabbix-2 \
+		-f zabbix-22-centos-7.Dockerfile \
+		-t libzbxpgsql/zabbix-22-centos-7 \
 		.
 
-ubuntu-trusty-zabbix-2:
+zabbix-22-debian-wheezy:
 	docker build \
-		-f ubuntu-trusty-zabbix-2.Dockerfile \
-		-t libzbxpgsql/ubuntu-trusty-zabbix-2 \
+		-f zabbix-22-debian-wheezy.Dockerfile \
+		-t libzbxpgsql/zabbix-22-debian-wheezy \
 		.
 
-ubuntu-trusty-zabbix-3:
+zabbix-22-debian-jessie:
 	docker build \
-		-f ubuntu-trusty-zabbix-3.Dockerfile \
-		-t libzbxpgsql/ubuntu-trusty-zabbix-3 \
+		-f zabbix-22-debian-jessie.Dockerfile \
+		-t libzbxpgsql/zabbix-22-debian-jessie \
 		.
 
+zabbix-22-ubuntu-precise:
+	docker build \
+		-f zabbix-22-ubuntu-precise.Dockerfile \
+		-t libzbxpgsql/zabbix-22-ubuntu-precise \
+		.
+
+zabbix-22-ubuntu-trusty:
+	docker build \
+		-f zabbix-22-ubuntu-trusty.Dockerfile \
+		-t libzbxpgsql/zabbix-22-ubuntu-trusty \
+		.
+
+zabbix-30-centos-6:
+	docker build \
+		-f zabbix-30-centos-6.Dockerfile \
+		-t libzbxpgsql/zabbix-30-centos-6 \
+		.
+
+zabbix-30-centos-7:
+	docker build \
+		-f zabbix-30-centos-7.Dockerfile \
+		-t libzbxpgsql/zabbix-30-centos-7 \
+		.
+
+zabbix-30-debian-wheezy:
+	docker build \
+		-f zabbix-30-debian-wheezy.Dockerfile \
+		-t libzbxpgsql/zabbix-30-debian-wheezy \
+		.
+		
+zabbix-30-debian-jessie:
+	docker build \
+		-f zabbix-30-debian-jessie.Dockerfile \
+		-t libzbxpgsql/zabbix-30-debian-jessie \
+		.
+
+zabbix-30-ubuntu-trusty:
+	docker build \
+		-f zabbix-30-ubuntu-trusty.Dockerfile \
+		-t libzbxpgsql/zabbix-30-ubuntu-trusty \
+		.
+
+zabbix-30-ubuntu-xenial:
+	docker build \
+		-f zabbix-30-ubuntu-xenial.Dockerfile \
+		-t libzbxpgsql/zabbix-30-ubuntu-xenial \
+		.
+
+zabbix-32-centos-6:
+	docker build \
+		-f zabbix-32-centos-6.Dockerfile \
+		-t libzbxpgsql/zabbix-32-centos-6 \
+		.
+
+zabbix-32-centos-7:
+	docker build \
+		-f zabbix-32-centos-7.Dockerfile \
+		-t libzbxpgsql/zabbix-32-centos-7 \
+		.
+
+zabbix-32-debian-wheezy:
+	docker build \
+		-f zabbix-32-debian-wheezy.Dockerfile \
+		-t libzbxpgsql/zabbix-32-debian-wheezy \
+		.
+		
+zabbix-32-debian-jessie:
+	docker build \
+		-f zabbix-32-debian-jessie.Dockerfile \
+		-t libzbxpgsql/zabbix-32-debian-jessie \
+		.
+
+zabbix-32-ubuntu-trusty:
+	docker build \
+		-f zabbix-32-ubuntu-trusty.Dockerfile \
+		-t libzbxpgsql/zabbix-32-ubuntu-trusty \
+		.
+
+zabbix-32-ubuntu-xenial:
+	docker build \
+		-f zabbix-32-ubuntu-xenial.Dockerfile \
+		-t libzbxpgsql/zabbix-32-ubuntu-xenial \
+		.

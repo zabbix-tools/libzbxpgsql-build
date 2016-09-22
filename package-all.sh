@@ -1,5 +1,4 @@
 #!/bin/bash
-
 function die() {
   echo "$@" >&2
   exit 1
@@ -23,17 +22,26 @@ if [[ $# -gt 0 ]]; then
 fi
 
 # build all packages
+make docker-images
 make dist
 
-make_package 2.4.8 apt debian wheezy amd64
-make_package 2.4.8 apt debian jessie amd64
-make_package 2.4.8 apt ubuntu precise amd64
-make_package 2.4.8 apt ubuntu trusty amd64
-make_package 2.4.8 yum rhel 6 x86_64
-make_package 2.4.8 yum rhel 7 x86_64
+make_package 2.2.14 yum centos 6 x86_64
+make_package 2.2.14 yum centos 7 x86_64
+make_package 2.2.14 apt debian wheezy amd64
+make_package 2.2.14 apt debian jessie amd64
+make_package 2.2.14 apt ubuntu precise amd64
+make_package 2.2.14 apt ubuntu trusty amd64
 
+make_package 3.0.4 yum centos 6 x86_64
+make_package 3.0.4 yum centos 7 x86_64
 make_package 3.0.4 apt debian wheezy amd64
 make_package 3.0.4 apt debian jessie amd64
 make_package 3.0.4 apt ubuntu trusty amd64
-make_package 3.0.4 yum rhel 6 x86_64
-make_package 3.0.4 yum rhel 7 x86_64
+make_package 3.0.4 apt ubuntu xenial amd64
+
+make_package 3.2.0 yum centos 6 x86_64
+make_package 3.2.0 yum centos 7 x86_64
+make_package 3.2.0 apt debian wheezy amd64
+make_package 3.2.0 apt debian jessie amd64
+make_package 3.2.0 apt ubuntu trusty amd64
+make_package 3.2.0 apt ubuntu xenial amd64
