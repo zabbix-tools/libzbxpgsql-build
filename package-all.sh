@@ -22,8 +22,8 @@ if [[ $# -gt 0 ]]; then
 fi
 
 # build all packages
-make docker-images
-make dist
+make docker-images || die
+make dist || die
 
 make_package 2.2.14 yum centos 6 x86_64
 make_package 2.2.14 yum centos 7 x86_64
