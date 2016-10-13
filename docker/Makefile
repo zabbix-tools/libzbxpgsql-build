@@ -25,7 +25,6 @@ docker-images: \
 	zabbix-2.2-centos-6 \
 	zabbix-2.2-centos-7 \
 	zabbix-2.2-debian-wheezy \
-	zabbix-2.2-debian-jessie \
 	zabbix-2.2-ubuntu-precise \
 	zabbix-2.2-ubuntu-trusty \
 	zabbix-3.0-centos-6 \
@@ -156,12 +155,6 @@ zabbix-2.2-debian-wheezy:
 	$(DOCKER_BUILD) \
 		-f zabbix-2.2-debian-wheezy.Dockerfile \
 		-t libzbxpgsql/zabbix-2.2-debian-wheezy \
-		.
-
-zabbix-2.2-debian-jessie:
-	$(DOCKER_BUILD) \
-		-f zabbix-2.2-debian-jessie.Dockerfile \
-		-t libzbxpgsql/zabbix-2.2-debian-jessie \
 		.
 
 zabbix-2.2-ubuntu-precise:

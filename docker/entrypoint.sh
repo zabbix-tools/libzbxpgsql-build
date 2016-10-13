@@ -52,7 +52,7 @@ function make_dist() {
   check_env
 
   cd ${WORKDIR}/${PACKAGE_NAME}
-  [[ -f configure ]] || autogen.sh || exit 1
+  [[ -f configure ]] || ./autogen.sh || exit 1
   [[ -f Makefile ]] || ./configure || exit 1
   make dist || exit 1
 
@@ -175,14 +175,16 @@ function test_package() {
 
   # target installed agent version
   ZABBIX_VERSION_MAJOR=$(zabbix_agentd --version | grep -o '[0-9]\+' | grep -o '[0-9]\+' | head -n 1)
-  [[ -z "${ZABBIX_VERSION_MAJOR}" ]] && die "Error printing Zabbix agent version"
+  [[ -z "${ZABBIX_VERSION_MAJOR}" ]] && die "Error printing Zabbix agent version major"
+  ZABBIX_VERSION_MINOR=$(zabbix_agentd --version | grep -o '[0-9]\+' | grep -o '[0-9]\+' | head -n 2 | tail -n 1)
+  [[ -z "${ZABBIX_VERSION_MINOR}" ]] && die "Error printing Zabbix agent version minor"
 
   # install on redhat family
   if [[ -f /etc/redhat-release ]]; then
     OS=$(head -n 1 /etc/redhat-release)
     OSVER=$(grep -o '[0-9]\+' /etc/redhat-release | head -n 1)
     ARCH=$(uname -m)
-    PACKAGE_PATH=release/yum/zabbix${ZABBIX_VERSION_MAJOR}/rhel/${OSVER}/${ARCH}/${PACKAGE_NAME}-${PACKAGE_VERSION}-1.el${OSVER}.${ARCH}.rpm
+    PACKAGE_PATH=release/yum/zabbix${ZABBIX_VERSION_MAJOR}${ZABBIX_VERSION_MINOR}/rhel/${OSVER}/${ARCH}/${PACKAGE_NAME}-${PACKAGE_VERSION}-1.el${OSVER}.${ARCH}.rpm
 
     echo "${BULLET} Package info:"
     rpm -qpi ${WORKDIR}/${PACKAGE_PATH}
@@ -208,6 +210,7 @@ function test_package() {
         case "${VERSION_ID}" in
           "12.04") OSVER="precise" ;;
           "14.04") OSVER="trusty" ;;
+          "16.04") OSVER="xenial" ;;
         esac
       ;;
 
@@ -221,7 +224,7 @@ function test_package() {
       *) die "Unsupported architecture: $(uname -m)" ;;
     esac
 
-    PACKAGE_PATH=release/apt/zabbix${ZABBIX_VERSION_MAJOR}/${OS}/${OSVER}/${ARCH}/${PACKAGE_NAME}_${PACKAGE_VERSION}-1+${OSVER}_${ARCH}.deb
+    PACKAGE_PATH=release/apt/zabbix${ZABBIX_VERSION_MAJOR}${ZABBIX_VERSION_MINOR}/${OS}/${OSVER}/${ARCH}/${PACKAGE_NAME}_${PACKAGE_VERSION}-1+${OSVER}_${ARCH}.deb
 
     echo "${BULLET} Package info:"
     dpkg-deb -I ${WORKDIR}/${PACKAGE_PATH}
@@ -271,6 +274,18 @@ case $1 in
   "agent")
     PACKAGE_PATH=${WORKDIR}/${PACKAGE_NAME}/src/.libs/${PACKAGE_NAME}.so
     CONF_PATH=${WORKDIR}/${PACKAGE_NAME}/query.conf
+
+    mkdir -p /usr/lib/zabbix/modules 
+    chown zabbix.zabbix /usr/lib/zabbix/modules
+    mkdir -p /var/run/zabbix 
+    chown zabbix.zabbix /var/run/zabbix 
+    echo "AllowRoot=1" >> /etc/zabbix/zabbix_agentd.conf 
+    echo "LogType=console" >> /etc/zabbix/zabbix_agentd.conf 
+    apt-get -y update && apt-get -y install curl
+    curl -LO https://sourceforge.net/projects/zabbixagentbench/files/linux/zabbix_agent_bench-0.4.0.x86_64.tar.gz 
+    tar -xzvf zabbix_agent_bench-0.4.0.x86_64.tar.gz 
+    cp -vf zabbix_agent_bench-0.4.0.x86_64/zabbix_agent_bench /usr/bin/zabbix_agent_bench 
+    rm -rvf zabbix_agent_bench-0.4.0.x86_64*
 
     # load module if present
     if [[ -f $PACKAGE_PATH ]]; then
