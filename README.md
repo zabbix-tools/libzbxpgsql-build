@@ -42,7 +42,7 @@ sudo chmod +x /usr/local/bin/docker-compose
 * Clone `libzbxpgsql` sources into `./libzbxpgsql`
 * Ensure `PACKAGE_VERSION` in `Makefile` matches the `AC_INIT` version in
    `./libzbxpgsql/configure.ac`
-* Unzip Zabbix sources into `./zabbix-X.X.X` (currently 3.0.4 and 2.4.8)
+* Unzip Zabbix sources into `./zabbix-X.X.X` (2.2.0, 3.0.0,i & 3.2.0)
 * Build the Docker images with `make docker-images`
     * Take a nap, this will run a while...
 
