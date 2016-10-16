@@ -33,11 +33,11 @@ docker-clean-all:
 
 # build module
 libzbxpgsql.so:
-	$(DOCKER_RUN) $(PACKAGE_NAME)/build-jessie build
+	$(DOCKER_RUN) $(PACKAGE_NAME)/build-debian-jessie build
 
 # create source tarball
 dist:
-	$(DOCKER_RUN) $(PACKAGE_NAME)/build-jessie dist
+	$(DOCKER_RUN) $(PACKAGE_NAME)/build-debian-jessie dist
 
 # create a release package
 package:
@@ -49,24 +49,23 @@ package:
 		$(PACKAGE_NAME)/build-$(TARGET_OS)-$(TARGET_OS_MAJOR) package;
 
 package-tests:
-	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-22-centos-6 test_package
-	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-22-centos-7 test_package
-	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-22-debian-wheezy test_package
-	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-22-debian-jessie test_package
-	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-22-ubuntu-precise test_package
-	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-22-ubuntu-trusty test_package
-	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-30-centos-6 test_package
-	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-30-centos-7 test_package
-	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-30-debian-wheezy test_package
-	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-30-debian-jessie test_package
-	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-30-ubuntu-trusty test_package
-	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-30-ubuntu-xenial test_package
-	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-32-centos-6 test_package
-	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-32-centos-7 test_package
-	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-32-debian-wheezy test_package
-	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-32-debian-jessie test_package
-	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-32-ubuntu-trusty test_package
-	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-32-ubuntu-xenial test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-2.2-centos-6 test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-2.2-centos-7 test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-2.2-debian-wheezy test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-2.2-ubuntu-precise test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-2.2-ubuntu-trusty test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-3.0-centos-6 test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-3.0-centos-7 test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-3.0-debian-wheezy test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-3.0-debian-jessie test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-3.0-ubuntu-trusty test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-3.0-ubuntu-xenial test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-3.2-centos-6 test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-3.2-centos-7 test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-3.2-debian-wheezy test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-3.2-debian-jessie test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-3.2-ubuntu-trusty test_package
+	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-3.2-ubuntu-xenial test_package
 
 # run key compatability tests (requires testenv)
 key-tests:
@@ -86,7 +85,7 @@ release-sync:
 
 # run an agent with the compiled module
 agent:
-	$(DOCKER_RUN) -p 10050:10050 $(PACKAGE_NAME)/build-jessie agent
+	$(DOCKER_RUN) -p 10050:10050 $(PACKAGE_NAME)/build-debian-jessie agent
 
 # start an interactice session in a build container
 shell-wheezy:
