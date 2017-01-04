@@ -1,7 +1,7 @@
 PACKAGE_NAME = libzbxpgsql
 PACKAGE_VERSION = 1.1.0
 
-ZABBIX_VERSION = 3.2.0
+ZABBIX_VERSION = 3.2.3
 
 # args common to all 'docker run' commands
 DOCKER_RUNARGS = -it --rm \

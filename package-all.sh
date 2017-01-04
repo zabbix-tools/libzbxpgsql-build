@@ -25,23 +25,23 @@ fi
 make docker-images || die
 make dist || die
 
-make_package 2.2.0 yum centos 6 x86_64
-make_package 2.2.0 yum centos 7 x86_64
-make_package 2.2.0 apt debian wheezy amd64
-make_package 2.2.0 apt debian jessie amd64
-make_package 2.2.0 apt ubuntu precise amd64
-make_package 2.2.0 apt ubuntu trusty amd64
+make_package 2.2.16 yum centos 6 x86_64
+make_package 2.2.16 yum centos 7 x86_64
+make_package 2.2.16 apt debian wheezy amd64
+make_package 2.2.16 apt debian jessie amd64
+make_package 2.2.16 apt ubuntu precise amd64
+make_package 2.2.16 apt ubuntu trusty amd64
 
-make_package 3.0.0 yum centos 6 x86_64
-make_package 3.0.0 yum centos 7 x86_64
-make_package 3.0.0 apt debian wheezy amd64
-make_package 3.0.0 apt debian jessie amd64
-make_package 3.0.0 apt ubuntu trusty amd64
-make_package 3.0.0 apt ubuntu xenial amd64
+make_package 3.0.7 yum centos 6 x86_64
+make_package 3.0.7 yum centos 7 x86_64
+make_package 3.0.7 apt debian wheezy amd64
+make_package 3.0.7 apt debian jessie amd64
+make_package 3.0.7 apt ubuntu trusty amd64
+make_package 3.0.7 apt ubuntu xenial amd64
 
-make_package 3.2.0 yum centos 6 x86_64
-make_package 3.2.0 yum centos 7 x86_64
-make_package 3.2.0 apt debian wheezy amd64
-make_package 3.2.0 apt debian jessie amd64
-make_package 3.2.0 apt ubuntu trusty amd64
-make_package 3.2.0 apt ubuntu xenial amd64
+make_package 3.2.3 yum centos 6 x86_64
+make_package 3.2.3 yum centos 7 x86_64
+make_package 3.2.3 apt debian wheezy amd64
+make_package 3.2.3 apt debian jessie amd64
+make_package 3.2.3 apt ubuntu trusty amd64
+make_package 3.2.3 apt ubuntu xenial amd64
