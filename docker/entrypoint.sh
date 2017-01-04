@@ -288,9 +288,10 @@ case $1 in
     fi
 
     # add config file if needed
-    if [[ -f $CONF_PATH && ! -f /etc/${PACKAGE_NAME}.d/query.conf ]]; then
-      mkdir /etc/${PACKAGE_NAME}.d
-      cp -v $CONF_PATH /etc/${PACKAGE_NAME}.d
+    if [[ -f $CONF_PATH ]]; then
+      ln -vs \
+        $CONF_PATH \
+        /etc/${PACKAGE_NAME}.d
     fi
 
     # start agent

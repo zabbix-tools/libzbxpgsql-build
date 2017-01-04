@@ -22,8 +22,9 @@ RUN \
 RUN \
 	install -d -o zabbix -g zabbix -m 0750 /usr/lib/zabbix/modules \
 	&& install -d -o zabbix -g zabbix -m 755 /var/run/zabbix \
-    && echo "AllowRoot=1" >> /etc/zabbix/zabbix_agentd.conf \
-    && echo "LogType=console" >> /etc/zabbix/zabbix_agentd.conf
+  && install -d -o zabbix -g zabbix -m  0750 /etc/libzbxpgsql.d \
+  && echo "AllowRoot=1" >> /etc/zabbix/zabbix_agentd.conf \
+  && echo "LogType=console" >> /etc/zabbix/zabbix_agentd.conf
 
 COPY entrypoint.sh /entrypoint.sh
 
