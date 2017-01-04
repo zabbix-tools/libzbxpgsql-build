@@ -40,10 +40,6 @@ docker-images: \
 	zabbix-3.2-ubuntu-trusty \
 	zabbix-3.2-ubuntu-xenial
 
-docker-clean-all:
-	docker ps -aq | xargs docker rm
-	docker images -q | xargs docker rmi
-
 docker-images-update:
 	docker pull centos:6
 	docker pull centos:7
@@ -53,49 +49,6 @@ docker-images-update:
 	docker pull ubuntu:precise
 	docker pull ubuntu:xenial
 	make docker-images
-
-# run build container
-run-wheezy:
-	docker run \
-		-it \
-		--rm \
-		libzbxpgsql/build-debian-wheezy \
-		/bin/bash
-
-run-jessie:
-	docker run \
-		-it \
-		--rm \
-		libzbxpgsql/build-debian-jessie \
-		/bin/bash
-
-run-precise:
-	docker run \
-		-it \
-		--rm \
-		libzbxpgsql/build-ubuntu-precise \
-		/bin/bash
-
-run-trusty:
-	docker run \
-		-it \
-		--rm \
-		libzbxpgsql/build-ubuntu-trusty \
-		/bin/bash
-
-run-centos-6:
-	docker run \
-		-it \
-		--rm \
-		libzbxpgsql/build-centos-6 \
-		/bin/bash
-
-run-centos-7:
-	docker run \
-		-it \
-		--rm \
-		libzbxpgsql/build-centos-7 \
-		/bin/bash
 
 build-centos-6:
 	$(DOCKER_BUILD) \

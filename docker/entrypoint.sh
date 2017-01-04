@@ -275,18 +275,6 @@ case $1 in
     PACKAGE_PATH=${WORKDIR}/${PACKAGE_NAME}/src/.libs/${PACKAGE_NAME}.so
     CONF_PATH=${WORKDIR}/${PACKAGE_NAME}/query.conf
 
-    mkdir -p /usr/lib/zabbix/modules 
-    chown zabbix.zabbix /usr/lib/zabbix/modules
-    mkdir -p /var/run/zabbix 
-    chown zabbix.zabbix /var/run/zabbix 
-    echo "AllowRoot=1" >> /etc/zabbix/zabbix_agentd.conf 
-    echo "LogType=console" >> /etc/zabbix/zabbix_agentd.conf 
-    apt-get -y update && apt-get -y install curl
-    curl -LO https://sourceforge.net/projects/zabbixagentbench/files/linux/zabbix_agent_bench-0.4.0.x86_64.tar.gz 
-    tar -xzvf zabbix_agent_bench-0.4.0.x86_64.tar.gz 
-    cp -vf zabbix_agent_bench-0.4.0.x86_64/zabbix_agent_bench /usr/bin/zabbix_agent_bench 
-    rm -rvf zabbix_agent_bench-0.4.0.x86_64*
-
     # load module if present
     if [[ -f $PACKAGE_PATH ]]; then
       ln -vs \

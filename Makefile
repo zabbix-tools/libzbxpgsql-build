@@ -69,7 +69,7 @@ package-tests:
 
 # run key compatability tests (requires testenv)
 key-tests:
-	docker exec -it libzbxpgsqlbuild_agent_1 /entrypoint.sh test
+	docker exec -it libzbxpgsql_agent_1 /entrypoint.sh test
 
 # start a test environment including each postgresql version and a zabbix agent
 testenv:
@@ -85,7 +85,7 @@ release-sync:
 
 # run an agent with the compiled module
 agent:
-	$(DOCKER_RUN) -p 10050:10050 $(PACKAGE_NAME)/build-debian-jessie agent
+	$(DOCKER_RUN) -p 10050:10050 $(PACKAGE_NAME)/zabbix-3.2-debian-jessie agent
 
 # start an interactice session in a build container
 shell-wheezy:
