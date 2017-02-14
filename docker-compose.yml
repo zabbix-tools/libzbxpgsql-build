@@ -1,49 +1,41 @@
 version: '2'
 services:
-  agent:
-    image: libzbxpgsql/zabbix-3.2-debian-jessie
-    command: agent
-    ports: [ "10050:10050" ]
-    expose: [ 10050 ]
-    environment:
-      WORKDIR:
-      PACKAGE_NAME:
-      PACKAGE_VERSION:
-      ZABBIX_VERSION:
-    volumes: [ ".:/root/libzbxpgsql" ]
-    links:
-      - pg84
-      - pg90
-      - pg91
-      - pg92
-      - pg93
-      - pg94
-      - pg95
-
   pg84:
     image: postgres:8.4
     expose: [ 5432 ]
+    ports: [ "5484:5432" ]
       
   pg90:
     image: postgres:9.0
     expose: [ 5432 ]
+    ports: [ "5490:5432" ]
       
   pg91:
     image: postgres:9.1
     expose: [ 5432 ]
+    ports: [ "5491:5432" ]
       
   pg92:
     image: postgres:9.2
     expose: [ 5432 ]
+    ports: [ "5492:5432" ]
       
   pg93:
     image: postgres:9.3
     expose: [ 5432 ]
+    ports: [ "5493:5432" ]
 
   pg94:
     image: postgres:9.4
     expose: [ 5432 ]
+    ports: [ "5494:5432" ]
 
   pg95:
     image: postgres:9.5
     expose: [ 5432 ]
+    ports: [ "5495:5432" ]
+
+  pg96:
+    image: postgres:9.6
+    expose: [ 5432 ]
+    ports: [ "5496:5432" ]

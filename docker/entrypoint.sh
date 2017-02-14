@@ -273,7 +273,7 @@ case $1 in
 
   "agent")
     PACKAGE_PATH=${WORKDIR}/${PACKAGE_NAME}/src/.libs/${PACKAGE_NAME}.so
-    CONF_PATH=${WORKDIR}/${PACKAGE_NAME}/query.conf
+    CONF_PATH=${WORKDIR}/${PACKAGE_NAME}/conf/${PACKAGE_NAME}.conf
 
     # load module if present
     if [[ -f $PACKAGE_PATH ]]; then
@@ -291,7 +291,7 @@ case $1 in
     if [[ -f $CONF_PATH ]]; then
       ln -vs \
         $CONF_PATH \
-        /etc/${PACKAGE_NAME}.d
+        /etc/zabbix/${PACKAGE_NAME}.conf
     fi
 
     # start agent

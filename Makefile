@@ -21,23 +21,21 @@ TARGET_ARCH = $(uname -m)
 
 all: libzbxpgsql.so
 
-clean:
-	rm -rvf release
-	cd $(PACKAGE_NAME) && make clean && make distclean
-
-docker-images:
-	cd docker && make docker-images
-
-docker-clean-all:
-	cd docker && make docker-clean-all
-
 # build module
 libzbxpgsql.so:
 	$(DOCKER_RUN) $(PACKAGE_NAME)/build-debian-jessie build
 
+# build docker images for compiling, testing and packaging the module
+docker-images:
+	cd docker && make docker-images
+
 # create source tarball
 dist:
 	$(DOCKER_RUN) $(PACKAGE_NAME)/build-debian-jessie dist
+
+clean:
+	rm -rvf release
+	cd $(PACKAGE_NAME) && make clean && make distclean
 
 # create a release package
 package:
@@ -48,7 +46,7 @@ package:
 		-e "TARGET_ARCH=$(TARGET_ARCH)" \
 		$(PACKAGE_NAME)/build-$(TARGET_OS)-$(TARGET_OS_MAJOR) package;
 
-package-tests:
+test-packages:
 	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-2.2-centos-6 test_package
 	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-2.2-centos-7 test_package
 	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-2.2-debian-wheezy test_package
@@ -67,12 +65,19 @@ package-tests:
 	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-3.2-ubuntu-trusty test_package
 	$(DOCKER_RUN) $(PACKAGE_NAME)/zabbix-3.2-ubuntu-xenial test_package
 
-# run key compatability tests (requires testenv)
-key-tests:
-	docker exec -it libzbxpgsql_agent_1 /entrypoint.sh test
+# run key compatibility tests (requires `make run-postgres`)
+test-keys:
+	docker exec -it libzbxpgsql_agent /entrypoint.sh test
+
+# run an agent with the compiled module
+run-agent: libzbxpgsql.so
+	$(DOCKER_RUN) \
+		-p 10050:10050 \
+		--name libzbxpgsql_agent \
+		$(PACKAGE_NAME)/zabbix-3.2-debian-jessie agent
 
 # start a test environment including each postgresql version and a zabbix agent
-testenv:
+run-postgres:
 	docker-compose down || :
 	WORKDIR=/root/$(PACKAGE_NAME) \
 		PACKAGE_NAME=$(PACKAGE_NAME) \
@@ -82,27 +87,4 @@ testenv:
 
 release-sync:
 	aws s3 sync ./release/ s3://s3.cavaliercoder.com/libzbxpgsql/
-
-# run an agent with the compiled module
-agent:
-	$(DOCKER_RUN) -p 10050:10050 $(PACKAGE_NAME)/zabbix-3.2-debian-jessie agent
-
-# start an interactice session in a build container
-shell-wheezy:
-	$(DOCKER_RUN) $(PACKAGE_NAME)/build-debian-wheezy /bin/bash
-
-shell-jessie:
-	$(DOCKER_RUN) $(PACKAGE_NAME)/build-debian-jessie /bin/bash
-
-shell-precise:
-	$(DOCKER_RUN) $(PACKAGE_NAME)/build-ubuntu-precise /bin/bash
-
-shell-trusty:
-	$(DOCKER_RUN) $(PACKAGE_NAME)/build-ubuntu-trusty /bin/bash
-
-shell-centos-6:
-	$(DOCKER_RUN) $(PACKAGE_NAME)/build-centos-6 /bin/bash
-
-shell-centos-7:
-	$(DOCKER_RUN) $(PACKAGE_NAME)/build-centos-7 /bin/bash
 
