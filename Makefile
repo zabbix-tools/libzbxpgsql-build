@@ -70,9 +70,19 @@ test-keys:
 	docker exec -it libzbxpgsql_agent /entrypoint.sh test
 
 # run an agent with the compiled module
+# requires run-postgres to be running
 run-agent: libzbxpgsql.so
 	$(DOCKER_RUN) \
 		-p 10050:10050 \
+		--network libzbxpgsql_default \
+		--link pg84:libzbxpgsql_pg84_1 \
+		--link pg90:libzbxpgsql_pg90_1 \
+		--link pg91:libzbxpgsql_pg91_1 \
+		--link pg92:libzbxpgsql_pg92_1 \
+		--link pg93:libzbxpgsql_pg93_1 \
+		--link pg94:libzbxpgsql_pg94_1 \
+		--link pg95:libzbxpgsql_pg95_1 \
+		--link pg96:libzbxpgsql_pg96_1 \
 		--name libzbxpgsql_agent \
 		$(PACKAGE_NAME)/zabbix-3.2-debian-jessie agent
 
