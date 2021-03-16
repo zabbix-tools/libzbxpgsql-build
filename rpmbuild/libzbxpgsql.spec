@@ -1,7 +1,7 @@
 Name        : libzbxpgsql
 Vendor      : cavaliercoder
 Version     : 1.1.0
-Release     : 1
+Release     : 2
 Summary     : PostgreSQL monitoring module for Zabbix
 
 Group       : Applications/Internet
