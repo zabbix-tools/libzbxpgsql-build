@@ -32,12 +32,30 @@ libzbxpgsql is a comprehensive PostgreSQL discovery and monitoring module for th
 # Extract and configure sources into $RPM_BUILD_ROOT
 %setup0 -q -n %{name}-%{version}
 
+err=0
+
+if ! type -p pg_config && [[ -z "$PG_CONFIG" ]] ; then
+    echo >&2 "pg_config must be in your path or set in $PG_CONFIG"
+    err=1
+fi
+
+if ! test -d /usr/src/zabbix/include ; then
+    if [[ -z "$ZABBIX_SOURCE" ]] || ! test -d "$ZABBIX_SOURCE" ;then 
+      echo >&2 "set ZABBIX_SOURCE to the location where we can find zabbix .h files (eg /usr/src/zabbix)"
+      err=1
+    fi
+fi
+
+[[ $err = 0 ]]  || exit $err
+
+test -f configure  || ./autogen.sh
+
 # fix up some lib64 issues
 sed -i.orig -e 's|_LIBDIR=/usr/lib|_LIBDIR=%{_libdir}|g' configure
 
 %build
 # Configure and compile sources into $RPM_BUILD_ROOT
-%configure --enable-dependency-tracking
+%configure --enable-dependency-tracking --with-zabbix="$ZABBIX_SOURCE"
 make %{?_smp_mflags}
 
 %install
