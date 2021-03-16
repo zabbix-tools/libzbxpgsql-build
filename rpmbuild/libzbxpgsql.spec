@@ -88,6 +88,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_sysconfdir}/%{name}.d/query.conf
 
 %changelog
+* Wed Mar 17 2021 Otheus <otheus+foss@gmail.com> 1.1.0-2
+- Check for Zabbix source directory and pg_config variables
+- Require query.conf to be in source tree. It's not clear which 
+  directory this file should be pulled from, since a spec file
+  should define all sources within itself.
 * Sat Aug 20 2016 Ryan Armstrong <ryan@cavaliercoder.com> 1.1.0-1
 - Added configuration file for long custom queries - Rob Brucks
 
