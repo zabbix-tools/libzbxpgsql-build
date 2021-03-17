@@ -1,7 +1,7 @@
 Name        : libzbxpgsql
 Vendor      : cavaliercoder
 Version     : 1.1.0
-Release     : 1
+Release     : 2
 Summary     : PostgreSQL monitoring module for Zabbix
 
 Group       : Applications/Internet
@@ -10,6 +10,7 @@ URL         : https://github.com/cavaliercoder/libzbxpgsql
 
 # Zabbix sources (Customized)
 Source0     : %{name}-%{version}.tar.gz
+Source1     : query.conf
 
 Buildroot   : %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -32,12 +33,33 @@ libzbxpgsql is a comprehensive PostgreSQL discovery and monitoring module for th
 # Extract and configure sources into $RPM_BUILD_ROOT
 %setup0 -q -n %{name}-%{version}
 
+err=0
+
+if ! type -p pg_config && [[ -z "$PG_CONFIG" ]] ; then
+    echo >&2 "pg_config must be in your path or set in $PG_CONFIG"
+    err=1
+fi
+
+if ! test -d /usr/src/zabbix/include ; then
+    if [[ -z "$ZABBIX_SOURCE" ]] || ! test -d "$ZABBIX_SOURCE" ;then 
+      echo >&2 "set ZABBIX_SOURCE to the location where we can find zabbix .h files (eg /usr/src/zabbix)"
+      err=1
+    fi
+fi
+
+[[ $err = 0 ]]  || exit $err
+
+test -f configure  || ./autogen.sh
+
 # fix up some lib64 issues
 sed -i.orig -e 's|_LIBDIR=/usr/lib|_LIBDIR=%{_libdir}|g' configure
 
+# fix up errant documentation in config file (easier than patching)
+sed -i.orig -e 's|pg_query\.|pg.query.|' conf/libzbxpgsql.conf
+
 %build
 # Configure and compile sources into $RPM_BUILD_ROOT
-%configure --enable-dependency-tracking
+%configure --enable-dependency-tracking --with-zabbix="$ZABBIX_SOURCE"
 make %{?_smp_mflags}
 
 %install
@@ -54,7 +76,7 @@ mv $RPM_BUILD_ROOT%{_libdir}/%{name}.so $RPM_BUILD_ROOT%{moddir}/modules/%{name}
 install -dm 755 $RPM_BUILD_ROOT%{_sysconfdir}/zabbix/zabbix_agentd.d
 echo "LoadModule=libzbxpgsql.so" > $RPM_BUILD_ROOT%{_sysconfdir}/zabbix/zabbix_agentd.d/%{name}.conf
 install -dm 755 $RPM_BUILD_ROOT%{_sysconfdir}/%{name}.d
-install -m 644 query.conf $RPM_BUILD_ROOT%{_sysconfdir}/%{name}.d/
+install -m 644 %{S:1} $RPM_BUILD_ROOT%{_sysconfdir}/%{name}.d/
 
 %clean
 # Clean out the build root
@@ -66,6 +88,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_sysconfdir}/%{name}.d/query.conf
 
 %changelog
+* Wed Mar 17 2021 Otheus <otheus+foss@gmail.com> 1.1.0-2
+- Check for Zabbix source directory and pg_config variables
+- Require query.conf to be in source tree. It's not clear which 
+  directory this file should be pulled from, since a spec file
+  should define all sources within itself.
 * Sat Aug 20 2016 Ryan Armstrong <ryan@cavaliercoder.com> 1.1.0-1
 - Added configuration file for long custom queries - Rob Brucks
 
