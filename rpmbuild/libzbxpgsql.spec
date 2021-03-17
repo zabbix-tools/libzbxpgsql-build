@@ -10,6 +10,7 @@ URL         : https://github.com/cavaliercoder/libzbxpgsql
 
 # Zabbix sources (Customized)
 Source0     : %{name}-%{version}.tar.gz
+Source1     : query.conf
 
 Buildroot   : %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -53,6 +54,9 @@ test -f configure  || ./autogen.sh
 # fix up some lib64 issues
 sed -i.orig -e 's|_LIBDIR=/usr/lib|_LIBDIR=%{_libdir}|g' configure
 
+# fix up errant documentation in config file (easier than patching)
+sed -i.orig -e 's|pg_query\.|pg.query.|' conf/libzbxpgsql.conf
+
 %build
 # Configure and compile sources into $RPM_BUILD_ROOT
 %configure --enable-dependency-tracking --with-zabbix="$ZABBIX_SOURCE"
@@ -72,7 +76,7 @@ mv $RPM_BUILD_ROOT%{_libdir}/%{name}.so $RPM_BUILD_ROOT%{moddir}/modules/%{name}
 install -dm 755 $RPM_BUILD_ROOT%{_sysconfdir}/zabbix/zabbix_agentd.d
 echo "LoadModule=libzbxpgsql.so" > $RPM_BUILD_ROOT%{_sysconfdir}/zabbix/zabbix_agentd.d/%{name}.conf
 install -dm 755 $RPM_BUILD_ROOT%{_sysconfdir}/%{name}.d
-install -m 644 query.conf $RPM_BUILD_ROOT%{_sysconfdir}/%{name}.d/
+install -m 644 %{S:1} $RPM_BUILD_ROOT%{_sysconfdir}/%{name}.d/
 
 %clean
 # Clean out the build root
